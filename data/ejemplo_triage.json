@@ -1,0 +1,260 @@
+[
+    {
+        "sintoma_raiz": "dolor toracico",
+        "preguntas_obligatorias": [
+            {
+                "id": "q_dolor_toracico_1",
+                "pregunta": "¿El dolor comenzó de forma brusca?",
+                "tipo_respuesta": "si_no",
+                "peso": 1.0
+            },
+            {
+                "id": "q_dolor_toracico_2",
+                "pregunta": "¿El dolor se irradia al brazo izquierdo, mandíbula o espalda?",
+                "tipo_respuesta": "si_no",
+                "peso": 1.0
+            },
+            {
+                "id": "q_dolor_toracico_3",
+                "pregunta": "¿Presenta dificultad para respirar?",
+                "tipo_respuesta": "si_no",
+                "peso": 1.0
+            },
+            {
+                "id": "q_dolor_toracico_4",
+                "pregunta": "¿Presenta sudoración fría?",
+                "tipo_respuesta": "si_no",
+                "peso": 1.0
+            }
+        ],
+        "recomendaciones": [
+            "Mantener al paciente en reposo",
+            "Aflojar ropa ajustada",
+            "No dar alimentos ni bebidas",
+            "Monitorear signos vitales constantemente"
+        ],
+        "reglas_clasificacion": [
+            {
+                "codigo_triage": "D1",
+                "condiciones": {
+                    "pregunta": "¿El dolor comenzó de forma brusca?",
+                    "respuesta_esperada": "si"
+                },
+                "instruccion_atencion": "EMERGENCIA - Traslado inmediato a sala de reanimación. Activar código infarto. Oxígeno, vía venosa, monitorización cardíaca.",
+                "posibles_causas": [
+                    "Infarto agudo de miocardio",
+                    "Angina inestable",
+                    "Disección aórtica",
+                    "Tromboembolismo pulmonar"
+                ]
+            },
+            {
+                "codigo_triage": "D1",
+                "condiciones": {
+                    "pregunta": "¿Presenta dificultad para respirar?",
+                    "respuesta_esperada": "si"
+                },
+                "instruccion_atencion": "EMERGENCIA - Oxígeno suplementario, monitorización, ECG urgente.",
+                "posibles_causas": [
+                    "Síndrome coronario agudo",
+                    "Insuficiencia cardíaca aguda",
+                    "Neumotórax"
+                ]
+            },
+            {
+                "codigo_triage": "D2",
+                "condiciones": {
+                    "pregunta": "¿El dolor se irradia al brazo izquierdo, mandíbula o espalda?",
+                    "respuesta_esperada": "si"
+                },
+                "instruccion_atencion": "URGENCIA - Evaluación cardiológica prioritaria. ECG y biomarcadores cardíacos.",
+                "posibles_causas": [
+                    "Angina de pecho",
+                    "Pericarditis",
+                    "Dolor musculoesquelético referido"
+                ]
+            },
+            {
+                "codigo_triage": "D7",
+                "condiciones": {
+                    "pregunta": "¿El dolor es leve y sin irradiación?",
+                    "respuesta_esperada": "si"
+                },
+                "instruccion_atencion": "Evaluación médica en consultorio. Descartar causas cardíacas.",
+                "posibles_causas": [
+                    "Dolor musculoesquelético",
+                    "Reflujo gastroesofágico",
+                    "Ansiedad"
+                ]
+            }
+        ]
+    },
+    {
+        "sintoma_raiz": "confusion",
+        "preguntas_obligatorias": [
+            {
+                "id": "q_confusion_1",
+                "pregunta": "¿La confusión comenzó de forma súbita?",
+                "tipo_respuesta": "si_no",
+                "peso": 1.0
+            },
+            {
+                "id": "q_confusion_2",
+                "pregunta": "¿El paciente responde a estímulos verbales?",
+                "tipo_respuesta": "si_no",
+                "peso": 1.0
+            },
+            {
+                "id": "q_confusion_3",
+                "pregunta": "¿Presenta fiebre?",
+                "tipo_respuesta": "si_no",
+                "peso": 1.0
+            },
+            {
+                "id": "q_confusion_4",
+                "pregunta": "¿Tiene antecedentes de diabetes?",
+                "tipo_respuesta": "si_no",
+                "peso": 1.0
+            }
+        ],
+        "recomendaciones": [
+            "Proteger al paciente de caídas",
+            "Recostarlo en posición lateral de seguridad",
+            "No dejar solo al paciente",
+            "Verificar glucemia si es posible"
+        ],
+        "reglas_clasificacion": [
+            {
+                "codigo_triage": "D1",
+                "condiciones": {
+                    "pregunta": "¿El paciente responde a estímulos verbales?",
+                    "respuesta_esperada": "no"
+                },
+                "instruccion_atencion": "EMERGENCIA - Proteger vía aérea. Decúbito lateral. Glucemia urgente. Descartar ACV.",
+                "posibles_causas": [
+                    "Accidente cerebrovascular",
+                    "Hipoglucemia severa",
+                    "Intoxicación",
+                    "Traumatismo craneoencefálico"
+                ]
+            },
+            {
+                "codigo_triage": "D1",
+                "condiciones": {
+                    "pregunta": "¿La confusión comenzó de forma súbita?",
+                    "respuesta_esperada": "si"
+                },
+                "instruccion_atencion": "EMERGENCIA - Evaluación neurológica inmediata. TAC cerebral urgente.",
+                "posibles_causas": [
+                    "ACV isquémico",
+                    "Hemorragia intracraneal",
+                    "Crisis convulsiva"
+                ]
+            },
+            {
+                "codigo_triage": "D2",
+                "condiciones": {
+                    "pregunta": "¿Presenta fiebre?",
+                    "respuesta_esperada": "si"
+                },
+                "instruccion_atencion": "URGENCIA - Descartar meningitis o encefalitis. Punción lumbar si indicado.",
+                "posibles_causas": [
+                    "Meningitis",
+                    "Encefalitis",
+                    "Sepsis",
+                    "Infección urinaria en adulto mayor"
+                ]
+            },
+            {
+                "codigo_triage": "D3",
+                "condiciones": {
+                    "pregunta": "¿La confusión es leve y progresiva?",
+                    "respuesta_esperada": "si"
+                },
+                "instruccion_atencion": "Evaluación médica. Descartar causas metabólicas o medicamentosas.",
+                "posibles_causas": [
+                    "Delirium",
+                    "Demencia",
+                    "Efectos secundarios de medicamentos",
+                    "Alteraciones metabólicas"
+                ]
+            }
+        ]
+    },
+    {
+        "sintoma_raiz": "fuerza muscular",
+        "preguntas_obligatorias": [
+            {
+                "id": "q_fuerza_1",
+                "pregunta": "¿Se le torció la boca o presenta asimetría facial?",
+                "tipo_respuesta": "si_no",
+                "peso": 1.0
+            },
+            {
+                "id": "q_fuerza_2",
+                "pregunta": "¿No puede levantar uno o ambos brazos?",
+                "tipo_respuesta": "si_no",
+                "peso": 1.0
+            },
+            {
+                "id": "q_fuerza_3",
+                "pregunta": "¿Presenta dificultad para hablar o no se le entiende?",
+                "tipo_respuesta": "si_no",
+                "peso": 1.0
+            },
+            {
+                "id": "q_fuerza_4",
+                "pregunta": "¿Los síntomas comenzaron hace menos de 4.5 horas?",
+                "tipo_respuesta": "si_no",
+                "peso": 1.0
+            }
+        ],
+        "recomendaciones": [
+            "NO dar alimentos ni líquidos",
+            "Mantener en decúbito lateral",
+            "Proteger de caídas",
+            "Anotar hora exacta de inicio de síntomas"
+        ],
+        "reglas_clasificacion": [
+            {
+                "codigo_triage": "D1",
+                "condiciones": {
+                    "pregunta": "¿Se le torció la boca o presenta asimetría facial?",
+                    "respuesta_esperada": "si"
+                },
+                "instruccion_atencion": "CÓDIGO ACV - Traslado inmediato a neurología. Activar protocolo de stroke. TAC cerebral urgente.",
+                "posibles_causas": [
+                    "Accidente cerebrovascular isquémico",
+                    "Hemorragia cerebral",
+                    "AIT (Ataque Isquémico Transitorio)"
+                ]
+            },
+            {
+                "codigo_triage": "D1",
+                "condiciones": {
+                    "pregunta": "¿No puede levantar uno o ambos brazos?",
+                    "respuesta_esperada": "si"
+                },
+                "instruccion_atencion": "EMERGENCIA - Evaluación neurológica inmediata. Ventana terapéutica crítica.",
+                "posibles_causas": [
+                    "ACV",
+                    "Lesión medular",
+                    "Síndrome de Guillain-Barré"
+                ]
+            },
+            {
+                "codigo_triage": "D2",
+                "condiciones": {
+                    "pregunta": "¿Presenta debilidad progresiva?",
+                    "respuesta_esperada": "si"
+                },
+                "instruccion_atencion": "URGENCIA - Evaluación neurológica. Estudios de imagen y laboratorio.",
+                "posibles_causas": [
+                    "Miastenia gravis",
+                    "Neuropatía periférica",
+                    "Miopatía"
+                ]
+            }
+        ]
+    }
+]
