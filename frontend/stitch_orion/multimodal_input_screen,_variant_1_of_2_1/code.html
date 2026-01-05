@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Orion Emergency Module - Multimodal Input</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&amp;family=Roboto+Mono:wght@300;400;500&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"/>
+<script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "#00E5FF",secondary: "#2979FF",alert: "#FF3D00","background-light": "#F0F4F8","background-dark": "#050B14","surface-dark": "#0F172A",
+              "surface-light": "#FFFFFF",
+            },
+            fontFamily: {
+              display: ["Orbitron", "sans-serif"],
+              mono: ["Roboto Mono", "monospace"],
+              body: ["Inter", "sans-serif"],
+            },
+            borderRadius: {
+              DEFAULT: "0.75rem",
+              'xl': '1rem',
+              '2xl': '1.5rem',
+            },
+            animation: {
+              'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+              'scan': 'scan 2s linear infinite',
+            },
+            keyframes: {
+              scan: {
+                '0%': { transform: 'translateY(-100%)' },
+                '100%': { transform: 'translateY(100%)' }
+              }
+            }
+          },
+        },
+      };
+    </script>
+<style>::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2979FF; 
+            border-radius: 3px;
+        }
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 229, 255, 0.1);
+        }
+        .light .glass-panel {
+            background: rgba(255, 255, 255, 0.85);
+            border: 1px solid rgba(41, 121, 255, 0.2);
+        }
+        .waveform-bar {
+            width: 4px;
+            background: #00E5FF;
+            border-radius: 2px;
+            animation: sound-wave 1.2s ease-in-out infinite;
+        }
+        @keyframes sound-wave {
+            0%, 100% { height: 10px; opacity: 0.5; }
+            50% { height: 30px; opacity: 1; box-shadow: 0 0 10px #00E5FF; }
+        }
+        .waveform-bar:nth-child(odd) { animation-duration: 0.8s; }
+        .waveform-bar:nth-child(2n) { animation-duration: 1.1s; }
+        .waveform-bar:nth-child(3n) { animation-duration: 1.3s; }
+        .active-ring {
+            box-shadow: 0 0 0 4px rgba(0, 229, 255, 0.2);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-800 dark:text-slate-100 min-h-screen font-body antialiased selection:bg-primary selection:text-black transition-colors duration-300 relative overflow-hidden">
+<div class="fixed inset-0 pointer-events-none overflow-hidden z-0">
+<div class="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-500/10 rounded-full blur-[100px]"></div>
+<div class="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-primary/10 rounded-full blur-[100px]"></div>
+<div class="absolute inset-0 bg-[linear-gradient(rgba(0,229,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,229,255,0.03)_1px,transparent_1px)] bg-[size:40px_40px]"></div>
+</div>
+<main class="relative z-10 flex flex-col h-screen max-w-md mx-auto shadow-2xl bg-white/50 dark:bg-black/20 backdrop-blur-sm border-x border-slate-200/20 dark:border-slate-700/30">
+<header class="flex items-center justify-between px-6 py-4 glass-panel border-b border-white/10 shrink-0">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary/50 shadow-[0_0_15px_rgba(0,229,255,0.3)]">
+<img alt="Orion Logo" class="w-full h-full object-cover bg-black" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDVS9kGuZ8jdlQ_v2evjcLJJqGQR4lXpj0y0DISmgeGMZPZovqc8-IlTBseuGys3tdUQITfabDipyozvwR9xdkvxu4viHfnJgeq2siKNXFqMwJUGBtcQML8QlmKwaSPXapLq12V8-6AtXMQgz_RPnvXpgUqBXKlIldgK-y1h_wPvF_IDMawzq-VdvWyUso7t7Z2c4vD9vRqX30G3FJJbhTpgYXrsDcPLKspDcDAYDMND3jZBzTTKwzoaZ9-OPCMPD_NBh1PfX4eu0Mb"/>
+</div>
+<div>
+<h1 class="font-display font-bold text-lg tracking-wider text-slate-900 dark:text-white leading-tight">ORION <span class="text-primary text-xs font-normal align-top">AI</span></h1>
+<div class="flex items-center gap-2">
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+</span>
+<p class="text-[10px] uppercase font-mono tracking-widest text-slate-500 dark:text-slate-400">System Active</p>
+</div>
+</div>
+</div>
+<button class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+<span class="material-icons-round text-slate-500 dark:text-slate-300">settings</span>
+</button>
+</header>
+<section class="flex-1 flex flex-col items-center justify-center relative px-6 py-8">
+<div class="absolute top-4 w-full flex justify-center">
+<div class="bg-primary/10 dark:bg-primary/20 backdrop-blur-md border border-primary/30 px-4 py-1.5 rounded-full flex items-center gap-2 animate-pulse-slow">
+<span class="material-icons-round text-primary text-sm">visibility</span>
+<span class="text-xs font-mono font-bold text-primary uppercase tracking-widest">Observing Environment</span>
+</div>
+</div>
+<div class="relative w-64 h-64 flex items-center justify-center mb-8">
+<div class="absolute inset-0 border border-primary/20 rounded-full animate-[spin_10s_linear_infinite]"></div>
+<div class="absolute inset-4 border border-dashed border-primary/30 rounded-full animate-[spin_15s_linear_infinite_reverse]"></div>
+<div class="absolute inset-12 border-2 border-t-primary border-r-transparent border-b-primary border-l-transparent rounded-full animate-[spin_3s_linear_infinite]"></div>
+<div class="relative z-10 w-32 h-32 bg-slate-900/80 dark:bg-black/60 rounded-full flex items-center justify-center backdrop-blur-xl border border-primary/50 shadow-[0_0_50px_rgba(0,229,255,0.2)]">
+<span class="material-icons-round text-6xl text-primary animate-pulse">mic</span>
+</div>
+<div class="absolute -bottom-12 left-0 right-0 h-16 flex items-end justify-center gap-1">
+<div class="waveform-bar h-4"></div>
+<div class="waveform-bar h-8"></div>
+<div class="waveform-bar h-6"></div>
+<div class="waveform-bar h-10"></div>
+<div class="waveform-bar h-5"></div>
+<div class="waveform-bar h-8"></div>
+<div class="waveform-bar h-3"></div>
+<div class="waveform-bar h-6"></div>
+<div class="waveform-bar h-4"></div>
+</div>
+</div>
+<div class="text-center space-y-2 max-w-xs">
+<p class="text-slate-400 dark:text-slate-500 font-mono text-xs uppercase tracking-widest">Input Stream Analysis</p>
+<div class="h-16 flex items-center justify-center">
+<p class="text-xl md:text-2xl font-light text-slate-800 dark:text-white leading-tight">
+                        "Patient reporting severe <span class="text-primary font-medium border-b border-primary border-dashed">substernal pressure</span>..."
+                    </p>
+</div>
+</div>
+</section>
+<section class="px-4 pb-2 shrink-0">
+<div class="flex items-center justify-between mb-3 px-2">
+<h3 class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider font-display">Detected Patterns</h3>
+<span class="text-[10px] bg-slate-200 dark:bg-slate-800 px-2 py-0.5 rounded text-slate-500">Confidence: 94%</span>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<button class="group relative flex flex-col p-4 bg-slate-50 dark:bg-surface-dark border border-slate-200 dark:border-slate-700 rounded-xl hover:border-primary dark:hover:border-primary transition-all duration-300 text-left overflow-hidden">
+<div class="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<div class="flex items-start justify-between mb-2">
+<span class="material-icons-round text-alert text-2xl group-hover:scale-110 transition-transform">favorite</span>
+<span class="text-[10px] font-mono text-alert bg-alert/10 px-1.5 py-0.5 rounded">URGENT</span>
+</div>
+<h4 class="font-display font-semibold text-slate-800 dark:text-white group-hover:text-primary transition-colors">Chest Pain</h4>
+<p class="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">Protocol ACS-09: STEMI likely. Prepare 12-lead ECG.</p>
+</button>
+<button class="group relative flex flex-col p-4 bg-slate-50 dark:bg-surface-dark border border-slate-200 dark:border-slate-700 rounded-xl hover:border-secondary dark:hover:border-secondary transition-all duration-300 text-left overflow-hidden">
+<div class="absolute inset-0 bg-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<div class="flex items-start justify-between mb-2">
+<span class="material-icons-round text-secondary text-2xl group-hover:scale-110 transition-transform">water_drop</span>
+<span class="text-[10px] font-mono text-secondary bg-secondary/10 px-1.5 py-0.5 rounded">MONITOR</span>
+</div>
+<h4 class="font-display font-semibold text-slate-800 dark:text-white group-hover:text-secondary transition-colors">Diaphoresis</h4>
+<p class="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">Associated symptom detected. Monitor fluid loss.</p>
+</button>
+</div>
+</section>
+<footer class="p-4 pt-2 shrink-0">
+<div class="glass-panel rounded-2xl p-4 flex items-center justify-between gap-4">
+<button class="flex-1 flex flex-col items-center gap-1 group">
+<div class="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center group-hover:bg-primary group-hover:border-primary group-hover:text-black dark:group-hover:text-black transition-all duration-300">
+<span class="material-icons-round text-slate-600 dark:text-slate-300 group-hover:text-inherit">keyboard</span>
+</div>
+<span class="text-[10px] font-medium text-slate-500 dark:text-slate-400 group-hover:text-primary transition-colors">TYPE</span>
+</button>
+<button class="relative -mt-8 flex flex-col items-center gap-2 group">
+<div class="w-16 h-16 rounded-full bg-primary shadow-[0_0_20px_rgba(0,229,255,0.4)] flex items-center justify-center text-black active:scale-95 transition-transform">
+<span class="material-icons-round text-3xl">mic</span>
+</div>
+<span class="text-[10px] font-bold text-primary uppercase tracking-wider">Listening</span>
+</button>
+<button class="flex-1 flex flex-col items-center gap-1 group">
+<div class="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center group-hover:bg-primary group-hover:border-primary group-hover:text-black dark:group-hover:text-black transition-all duration-300">
+<span class="material-icons-round text-slate-600 dark:text-slate-300 group-hover:text-inherit">photo_camera</span>
+</div>
+<span class="text-[10px] font-medium text-slate-500 dark:text-slate-400 group-hover:text-primary transition-colors">SCAN</span>
+</button>
+</div>
+<div class="h-4 w-full flex justify-center items-end mt-2">
+<div class="w-1/3 h-1 bg-slate-300 dark:bg-slate-700 rounded-full"></div>
+</div>
+</footer>
+</main>
+<script>
+        // Simple script to toggle dark mode for demonstration if viewing in browser
+        // In a real app, this would be handled by system preference
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+            if (event.matches) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        });
+    </script>
+
+</body></html>

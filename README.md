@@ -1,6 +1,22 @@
-# Orion - Sistema Híbrido de Triage de Urgencias
+<div align="center">
+
+![Orion Emergency Module](assets/logo.jpg)
+
+# Orion Emergency Module
+
+**Sistema Híbrido de Triage de Urgencias**
 
 Sistema inteligente que combina reglas clínicas + IA médica (Med-Gemma) para clasificación de triage robusta y confiable.
+
+---
+
+### 🔷 Orion Alfa | Módulo Administrativo
+Gestión, configuración y supervisión del sistema
+
+### 🔶 Orion Omega | Módulo de Triage
+Clasificación inteligente y atención de emergencias
+
+</div>
 
 ## 🎯 Características Principales
 
@@ -210,6 +226,8 @@ resultado = hybrid.classify(
 ## 📚 Documentación
 
 - [README.md](README.md) - Este archivo
+- [🔷 ORION_ALFA.md](ORION_ALFA.md) - Módulo Administrativo
+- [🔶 ORION_OMEGA.md](ORION_OMEGA.md) - Módulo de Triage
 - [MEDGEMMA_INTEGRATION.md](MEDGEMMA_INTEGRATION.md) - Guía de integración AI
 - [IMPORTAR_DATOS.md](IMPORTAR_DATOS.md) - Cómo importar datos
 - [INICIO_RAPIDO.md](INICIO_RAPIDO.md) - Guía de inicio rápido

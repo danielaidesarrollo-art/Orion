@@ -1,8 +1,20 @@
-# 🚀 Orion Core - Inicio Rápido
+<div align="center">
+
+![Orion Emergency Module](assets/logo.jpg)
+
+# 🚀 Orion Emergency Module - Inicio Rápido
+
+</div>
 
 ## Sistema Listo para Usar
 
-El sistema **Orion Core** está completamente funcional con datos de ejemplo.
+El sistema **Orion** está completamente funcional con datos de ejemplo.
+
+### 🔷 Orion Alfa - Módulo Administrativo
+Gestión de protocolos, configuración y supervisión del sistema.
+
+### 🔶 Orion Omega - Módulo de Triage
+Clasificación inteligente de casos de emergencia en tiempo real.
 
 ## 📋 Comandos Esenciales
 

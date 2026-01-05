@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Orion Emergency Module - Bio-Security</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@300;400;500;600;700&amp;family=Rajdhani:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#00E5FF", 
+                        "primary-dim": "rgba(0, 229, 255, 0.1)",
+                        "accent-alert": "#FF2E63",
+                        "accent-success": "#00FFAB",
+                        "bg-deep": "#050B14", 
+                        "surface-glass": "rgba(18, 28, 41, 0.65)",
+                        "border-glass": "rgba(0, 229, 255, 0.15)",
+                    },
+                    fontFamily: {
+                        display: ["'Chakra Petch'", "sans-serif"],
+                        body: ["'Rajdhani'", "sans-serif"],
+                    },
+                    boxShadow: {
+                        'neon': '0 0 10px rgba(0, 229, 255, 0.2), 0 0 20px rgba(0, 229, 255, 0.1)',
+                        'glow-text': '0 0 8px rgba(0, 229, 255, 0.6)',
+                    }
+                },
+            },
+        };
+    </script>
+<style>
+        body {
+            background-color: #050B14;
+            color: #e2e8f0;
+        }
+        .glass-panel {
+            background: rgba(13, 22, 35, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(0, 229, 255, 0.15);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        }
+        .grid-bg {
+            background-size: 40px 40px;
+            background-image:
+                linear-gradient(to right, rgba(0, 229, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0, 229, 255, 0.03) 1px, transparent 1px);
+        }
+        .ecg-anim {
+            stroke-dasharray: 1000;
+            stroke-dashoffset: 1000;
+            animation: dash 3s linear infinite;
+        }
+        @keyframes dash {
+            to { stroke-dashoffset: 0; }
+        }
+        .animate-scan {
+            background: linear-gradient(to bottom, transparent, rgba(0, 229, 255, 0.2), transparent);
+            background-size: 100% 50%;
+            animation: scanning 3s linear infinite;
+        }
+        @keyframes scanning {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(200%); }
+        }::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #00E5FF; border-radius: 2px; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-body min-h-screen relative overflow-hidden text-slate-200">
+<div class="fixed inset-0 grid-bg pointer-events-none z-0"></div>
+<div class="fixed inset-0 bg-gradient-to-b from-transparent via-[#050B14]/80 to-[#050B14] pointer-events-none z-0"></div>
+<main class="relative z-10 max-w-md mx-auto h-[100dvh] flex flex-col p-4 gap-4">
+<header class="flex items-center justify-between shrink-0">
+<div class="flex items-center gap-3">
+<div class="relative w-10 h-10">
+<div class="absolute inset-0 rounded-full border border-primary/40 animate-pulse"></div>
+<img alt="Orion Logo" class="w-full h-full object-cover rounded-full opacity-90 p-0.5" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD_4iXH1UNmbEsvFb4aVf5q64Qi_KAFeV6Q4Y9faCFWUvO7YdLPDY9D6ervc87j56V1gSbCBuj7bmMqdrkPUekhm5M8BcuY79sDsJed2E_vZ6sxShUPI865ztvpbtDmMftXIMGolW5qEoLm0hgngJFBexrPGrGxD_US7y6ie2cx-2yBAycCk0puCciUMiQhrEaFgCLEVJxQIVxc_gIDKk-la13iMQiV1pnhC5DBRmwPibUGZAXfo99KqeuuXNR3o1s5yjfF6K3xBUpG"/>
+</div>
+<div>
+<h1 class="font-display font-bold text-lg text-white tracking-widest uppercase leading-none">Orion</h1>
+<div class="flex items-center gap-1.5">
+<span class="w-1 h-1 rounded-full bg-primary animate-pulse"></span>
+<span class="text-[10px] text-primary/80 font-medium tracking-wider uppercase">Bio-Sec Integration</span>
+</div>
+</div>
+</div>
+<button class="glass-panel px-3 py-1.5 rounded-full flex items-center gap-2 hover:bg-primary/10 transition-colors">
+<span class="material-symbols-outlined text-primary text-sm">encrypted</span>
+<span class="text-[10px] font-bold text-primary tracking-wider">SECURE</span>
+</button>
+</header>
+<div class="flex-1 overflow-y-auto space-y-4 pr-1 -mr-1 pb-4">
+<section class="glass-panel rounded-xl p-0 overflow-hidden relative group">
+<div class="px-4 py-2 border-b border-border-glass bg-primary/5 flex justify-between items-center">
+<span class="text-xs font-display font-bold text-white uppercase tracking-wider flex items-center gap-2">
+<span class="material-symbols-outlined text-base text-primary">monitor_heart</span>
+                        Real-Time Vitals
+                    </span>
+<span class="flex h-2 w-2 relative">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-success opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-accent-success"></span>
+</span>
+</div>
+<div class="p-4 grid grid-cols-2 gap-4">
+<div class="col-span-1 relative">
+<div class="flex items-end justify-between mb-1">
+<span class="text-[10px] uppercase text-slate-400 font-bold tracking-widest">HR (BPM)</span>
+<span class="material-symbols-outlined text-accent-success text-sm">trending_flat</span>
+</div>
+<div class="flex items-baseline gap-1">
+<span class="font-display text-5xl font-bold text-white drop-shadow-[0_0_8px_rgba(0,229,255,0.5)]">86</span>
+</div>
+<div class="h-8 w-full mt-2 relative overflow-hidden opacity-80">
+<svg class="w-full h-full" preserveAspectRatio="none" viewBox="0 0 100 20">
+<path class="ecg-anim" d="M0,10 L10,10 L15,2 L20,18 L25,5 L30,15 L35,10 L100,10" fill="none" stroke="#00E5FF" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path>
+</svg>
+</div>
+<div class="mt-2 flex items-center gap-1.5">
+<span class="text-[9px] px-1.5 py-0.5 rounded bg-primary/10 text-primary border border-primary/20">SINUS RHYTHM</span>
+</div>
+</div>
+<div class="col-span-1 flex flex-col justify-between gap-3 border-l border-border-glass pl-4">
+<div>
+<div class="flex justify-between items-start">
+<span class="text-[10px] uppercase text-slate-400 font-bold tracking-widest">SpO2</span>
+<span class="material-symbols-outlined text-primary text-sm opacity-60">opacity</span>
+</div>
+<div class="flex items-baseline gap-1 mt-0.5">
+<span class="font-display text-3xl font-bold text-white">98</span>
+<span class="text-xs text-primary font-medium">%</span>
+</div>
+</div>
+<div class="h-px w-full bg-gradient-to-r from-transparent via-border-glass to-transparent"></div>
+<div>
+<div class="flex justify-between items-start">
+<span class="text-[10px] uppercase text-slate-400 font-bold tracking-widest">Resp Rate</span>
+<span class="material-symbols-outlined text-primary text-sm opacity-60">air</span>
+</div>
+<div class="flex items-baseline gap-1 mt-0.5">
+<span class="font-display text-3xl font-bold text-white">16</span>
+<span class="text-xs text-primary font-medium">rpm</span>
+</div>
+</div>
+</div>
+</div>
+<div class="absolute inset-0 pointer-events-none animate-scan opacity-10 z-0"></div>
+</section>
+<section class="glass-panel rounded-xl p-0 relative overflow-hidden">
+<div class="bg-primary/5 px-4 py-2 border-b border-border-glass flex justify-between items-center">
+<span class="text-xs font-display font-bold text-white uppercase tracking-wider">Protocol: ZKP-09</span>
+<span class="text-[9px] bg-accent-success/10 text-accent-success px-2 py-0.5 rounded border border-accent-success/20">HIPAA v4.2</span>
+</div>
+<div class="p-4 flex items-center gap-4">
+<div class="relative w-16 h-16 shrink-0 flex items-center justify-center">
+<div class="absolute inset-0 rounded-full border border-primary/30 border-t-transparent animate-[spin_3s_linear_infinite]"></div>
+<div class="absolute inset-2 rounded-full border border-primary/20 border-b-transparent animate-[spin_5s_linear_infinite_reverse]"></div>
+<span class="material-symbols-outlined text-3xl text-primary drop-shadow-[0_0_8px_rgba(0,229,255,0.8)]">fingerprint</span>
+<div class="absolute -bottom-2 px-2 py-0.5 bg-[#050B14] border border-primary/50 rounded text-[8px] font-mono text-primary font-bold tracking-wider">
+                            ACTIVE
+                        </div>
+</div>
+<div class="flex-1 space-y-1">
+<h3 class="text-sm font-bold text-white font-display">Zero-Knowledge Proof</h3>
+<p class="text-[10px] text-slate-400 leading-tight">
+                            Biometric telemetry is encrypted at source. Processing occurs without decrypting raw PII data.
+                        </p>
+<div class="flex items-center gap-2 mt-2">
+<span class="material-symbols-outlined text-[12px] text-accent-success">lock</span>
+<span class="text-[10px] font-mono text-accent-success uppercase">Tunnel: Encrypted (AES-256)</span>
+</div>
+</div>
+</div>
+</section>
+<section class="mt-auto">
+<div class="bg-gradient-to-r from-slate-900 to-slate-900/50 border border-primary/20 rounded-lg p-3 relative overflow-hidden">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-primary shadow-[0_0_10px_#00E5FF]"></div>
+<div class="flex items-center justify-between relative z-10">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-slate-800 border border-slate-700 flex items-center justify-center shadow-lg">
+<span class="material-symbols-outlined text-primary text-lg">dns</span>
+</div>
+<div>
+<div class="text-[10px] text-primary font-bold tracking-widest uppercase mb-0.5">DataCore Status</div>
+<div class="text-xs text-white font-mono flex items-center gap-1.5">
+<span>Honeypot Redirection</span>
+<span class="flex h-1.5 w-1.5 rounded-full bg-accent-success shadow-[0_0_5px_#00FFAB]"></span>
+</div>
+</div>
+</div>
+<div class="text-right">
+<div class="text-[9px] text-slate-500 uppercase tracking-widest mb-0.5">Integrity</div>
+<div class="text-xs font-bold text-accent-success">100%</div>
+</div>
+</div>
+<div class="absolute right-0 top-0 bottom-0 w-24 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
+</div>
+</section>
+</div>
+<footer class="shrink-0 grid grid-cols-4 gap-3 pt-2">
+<button class="col-span-1 glass-panel rounded-lg p-3 flex flex-col items-center justify-center gap-1 active:scale-95 transition-transform hover:bg-white/5">
+<span class="material-symbols-outlined text-slate-400 text-xl">history</span>
+<span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Logs</span>
+</button>
+<button class="col-span-2 bg-primary/90 hover:bg-primary text-slate-900 rounded-lg p-3 flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(0,229,255,0.4)] active:scale-95 transition-all">
+<span class="material-symbols-outlined text-xl">emergency_recording</span>
+<span class="text-sm font-bold font-display uppercase tracking-wider">Broadcast</span>
+</button>
+<button class="col-span-1 glass-panel rounded-lg p-3 flex flex-col items-center justify-center gap-1 active:scale-95 transition-transform hover:bg-white/5">
+<span class="material-symbols-outlined text-slate-400 text-xl">settings</span>
+<span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Config</span>
+</button>
+</footer>
+</main>
+
+</body></html>

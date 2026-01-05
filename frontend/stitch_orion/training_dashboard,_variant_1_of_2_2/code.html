@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Orion Emergency Module - Training Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"/>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#00E5FF", // Cyan/Electric Blue from the logo glow
+                        secondary: "#0B1120", // Deep space blue
+                        accent: "#0047AB", // Darker blue from the logo background
+                        "background-light": "#F1F5F9",
+                        "background-dark": "#050B14", // Very dark navy/black
+                        "surface-dark": "#0F172A", // Slightly lighter for cards
+                        "surface-light": "#FFFFFF",
+                        success: "#10B981",
+                        warning: "#F59E0B",
+                        danger: "#EF4444",
+                    },
+                    fontFamily: {
+                        display: ["Rajdhani", "sans-serif"],
+                        body: ["Inter", "sans-serif"],
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.75rem",
+                    },
+                    boxShadow: {
+                        'glow': '0 0 15px rgba(0, 229, 255, 0.3)',
+                        'glow-sm': '0 0 8px rgba(0, 229, 255, 0.2)',
+                    }
+                },
+            },
+        };
+    </script>
+<style>
+        .grid-bg {
+            background-image: linear-gradient(rgba(0, 229, 255, 0.03) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0, 229, 255, 0.03) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        .scan-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: rgba(0, 229, 255, 0.1);
+            box-shadow: 0 0 10px rgba(0, 229, 255, 0.2);
+            animation: scan 4s linear infinite;
+            z-index: 10;
+            pointer-events: none;
+        }
+        @keyframes scan {
+            0% { top: -10%; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: 110%; opacity: 0; }
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-800 dark:text-slate-100 font-body antialiased min-h-screen relative overflow-hidden transition-colors duration-300">
+<div class="fixed inset-0 grid-bg pointer-events-none z-0"></div>
+<div class="fixed inset-0 bg-gradient-to-b from-transparent via-transparent to-background-light/80 dark:to-background-dark/90 pointer-events-none z-0"></div>
+<div class="scan-line hidden dark:block"></div>
+<div class="relative z-10 max-w-md mx-auto h-screen flex flex-col p-4 sm:p-6">
+<header class="flex justify-between items-center mb-6">
+<div class="flex items-center gap-3">
+<div class="relative w-12 h-12 rounded-full bg-surface-light dark:bg-surface-dark border border-slate-200 dark:border-slate-700 flex items-center justify-center shadow-lg overflow-hidden group">
+<img alt="Orion Logo" class="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAee-IBO5GvGOJsUZW-lbecfhCfiDou3_9aF2DsVUcsdauAcjtZyNA_0KwPqLFm8Ke4KzVQ3bdAzt6VWBbMQ6D9VZfiGWjfjvRL7MRZ5dJEDoLE80J7ixJ3kLF3COQ5CdiXoVPdd9dXPDmOS0Ctf4IHaXe-Mx6T7o37UHibn7xStUfVfHmESCzVY9FMsSfQXVc1S_siLHwRPPnQj9GiBp0mwGmY-Z4rLnKa8zmAaRs3Iz6vETgnAnd6KfRCCwuzrsvymn_JrcKHof4T"/>
+<div class="absolute inset-0 border-2 border-primary/30 rounded-full animate-pulse"></div>
+</div>
+<div>
+<h1 class="font-display font-bold text-2xl tracking-wide uppercase text-slate-900 dark:text-white">Orion</h1>
+<p class="text-xs text-slate-500 dark:text-slate-400 font-medium tracking-wider uppercase">Emergency Module</p>
+</div>
+</div>
+<button class="p-2 rounded-full bg-white dark:bg-surface-dark border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:text-primary transition-colors">
+<span class="material-icons-round">settings</span>
+</button>
+</header>
+<div class="flex justify-between items-center mb-6 bg-white dark:bg-surface-dark/50 backdrop-blur-md rounded-lg p-3 border border-slate-200 dark:border-slate-800 shadow-sm">
+<div class="flex items-center gap-2">
+<span class="relative flex h-3 w-3">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-success opacity-75"></span>
+<span class="relative inline-flex rounded-full h-3 w-3 bg-success"></span>
+</span>
+<span class="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">System Active</span>
+</div>
+<div class="text-xs font-mono text-primary font-bold">Latency: 12ms</div>
+</div>
+<div class="flex-1 overflow-y-auto space-y-4 pb-20 no-scrollbar">
+<div class="flex justify-between items-end mb-2">
+<h2 class="font-display font-semibold text-xl text-slate-800 dark:text-slate-100">Training Metrics</h2>
+<span class="text-xs text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded">Last Epoch: 204</span>
+</div>
+<div class="bg-white dark:bg-surface-dark border border-slate-200 dark:border-slate-700 rounded-xl p-5 shadow-lg relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-24 h-24 bg-primary/5 dark:bg-primary/10 rounded-bl-full -mr-4 -mt-4 transition-all group-hover:bg-primary/10 dark:group-hover:bg-primary/20"></div>
+<div class="flex justify-between items-start relative z-10">
+<div>
+<p class="text-sm text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold">Mean Absolute Error</p>
+<div class="flex items-baseline gap-2 mt-1">
+<h3 class="text-4xl font-display font-bold text-slate-900 dark:text-white">0.042</h3>
+<span class="text-xs font-bold text-success bg-success/10 px-1.5 py-0.5 rounded flex items-center">
+<span class="material-icons-round text-[10px] mr-0.5">arrow_downward</span> 2.1%
+                            </span>
+</div>
+</div>
+<div class="h-10 w-10 rounded-lg bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-primary border border-slate-200 dark:border-slate-700">
+<span class="material-icons-round">analytics</span>
+</div>
+</div>
+<div class="mt-4 h-12 flex items-end gap-1">
+<div class="flex-1 bg-slate-100 dark:bg-slate-800 rounded-t-sm h-[40%] group-hover:bg-primary/20 transition-all"></div>
+<div class="flex-1 bg-slate-100 dark:bg-slate-800 rounded-t-sm h-[60%] group-hover:bg-primary/30 transition-all"></div>
+<div class="flex-1 bg-slate-100 dark:bg-slate-800 rounded-t-sm h-[35%] group-hover:bg-primary/20 transition-all"></div>
+<div class="flex-1 bg-slate-100 dark:bg-slate-800 rounded-t-sm h-[55%] group-hover:bg-primary/30 transition-all"></div>
+<div class="flex-1 bg-slate-100 dark:bg-slate-800 rounded-t-sm h-[45%] group-hover:bg-primary/20 transition-all"></div>
+<div class="flex-1 bg-slate-100 dark:bg-slate-800 rounded-t-sm h-[75%] group-hover:bg-primary/40 transition-all"></div>
+<div class="flex-1 bg-primary rounded-t-sm h-[30%] shadow-glow-sm"></div>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-white dark:bg-surface-dark border border-slate-200 dark:border-slate-700 rounded-xl p-4 shadow-md flex flex-col justify-between h-32 relative overflow-hidden">
+<div class="absolute -bottom-6 -right-6 w-20 h-20 bg-blue-500/5 dark:bg-blue-500/10 rounded-full blur-xl"></div>
+<div>
+<p class="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold">Sensitivity</p>
+<h3 class="text-2xl font-display font-bold text-slate-900 dark:text-white mt-1">98.5%</h3>
+</div>
+<div class="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1.5 mt-2">
+<div class="bg-blue-500 h-1.5 rounded-full" style="width: 98.5%"></div>
+</div>
+</div>
+<div class="bg-white dark:bg-surface-dark border border-slate-200 dark:border-slate-700 rounded-xl p-4 shadow-md flex flex-col justify-between h-32 relative overflow-hidden">
+<div class="absolute -bottom-6 -right-6 w-20 h-20 bg-purple-500/5 dark:bg-purple-500/10 rounded-full blur-xl"></div>
+<div>
+<p class="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold">Specificity</p>
+<h3 class="text-2xl font-display font-bold text-slate-900 dark:text-white mt-1">96.2%</h3>
+</div>
+<div class="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1.5 mt-2">
+<div class="bg-purple-500 h-1.5 rounded-full" style="width: 96.2%"></div>
+</div>
+</div>
+</div>
+<div class="bg-slate-900/5 dark:bg-black/20 border border-slate-200 dark:border-slate-800 rounded-xl p-4 mt-2">
+<div class="flex justify-between items-center mb-3">
+<h3 class="font-display font-semibold text-slate-800 dark:text-slate-200">COP Transaction Feed</h3>
+<span class="text-[10px] text-primary border border-primary/30 bg-primary/10 px-2 py-0.5 rounded-full uppercase">Live</span>
+</div>
+<div class="space-y-3">
+<div class="flex items-center gap-3 text-sm">
+<div class="w-2 h-2 rounded-full bg-slate-300 dark:bg-slate-600"></div>
+<span class="text-slate-500 dark:text-slate-400 font-mono text-xs">TX-8922</span>
+<span class="flex-1 border-b border-dashed border-slate-300 dark:border-slate-700 mx-2"></span>
+<span class="text-slate-700 dark:text-slate-300 font-medium">Completed</span>
+</div>
+<div class="flex items-center gap-3 text-sm">
+<div class="w-2 h-2 rounded-full bg-primary shadow-glow-sm animate-pulse"></div>
+<span class="text-primary font-mono text-xs">TX-8923</span>
+<span class="flex-1 border-b border-dashed border-primary/30 mx-2"></span>
+<span class="text-white font-medium">Processing...</span>
+</div>
+</div>
+</div>
+</div>
+<div class="absolute bottom-6 left-6 right-6">
+<div class="bg-white dark:bg-surface-dark border border-slate-200 dark:border-slate-700 rounded-2xl p-4 shadow-xl flex items-center justify-between backdrop-blur-xl bg-opacity-95 dark:bg-opacity-95">
+<div class="flex items-center gap-3">
+<div class="bg-amber-500/10 p-2 rounded-lg">
+<span class="material-icons-round text-amber-500">local_gas_station</span>
+</div>
+<div>
+<p class="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold tracking-widest">Est. Gas Fee</p>
+<p class="text-xs text-slate-400 dark:text-slate-500">Current Block</p>
+</div>
+</div>
+<div class="text-right">
+<div class="text-xl font-display font-bold text-slate-900 dark:text-white tabular-nums">0.0042 <span class="text-sm font-normal text-slate-500 dark:text-slate-400">Gwei</span></div>
+<div class="text-[10px] text-success font-medium">Low Congestion</div>
+</div>
+</div>
+</div>
+<nav class="fixed bottom-0 left-0 right-0 bg-white/80 dark:bg-background-dark/90 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 z-50 pb-safe">
+<div class="flex justify-around items-center p-3 max-w-md mx-auto">
+<button class="flex flex-col items-center gap-1 text-slate-400 hover:text-primary transition-colors p-2">
+<span class="material-icons-round text-xl">grid_view</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-primary p-2 relative">
+<span class="material-icons-round text-xl">show_chart</span>
+<span class="absolute -bottom-1 w-1 h-1 bg-primary rounded-full"></span>
+</button>
+<button class="flex flex-col items-center gap-1 text-slate-400 hover:text-primary transition-colors p-2">
+<span class="material-icons-round text-xl">medication</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-slate-400 hover:text-primary transition-colors p-2">
+<span class="material-icons-round text-xl">notifications</span>
+</button>
+</div>
+</nav>
+</div>
+<script>
+        // Simple script to toggle dark mode for demonstration purposes
+        // In a real app this would check system preference or user setting
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+        // Optional: Add a click listener to the header logo to toggle for testing
+        document.querySelector('header').addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+        });
+    </script>
+
+</body></html>

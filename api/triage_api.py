@@ -1,9 +1,12 @@
 """
-Orion Core - API REST
-API para clasificación de triage de urgencias
+Orion Emergency Module - API REST
+🔶 Orion Omega - Módulo de Triage
+API para clasificación inteligente de triage de urgencias
 """
 
 from fastapi import FastAPI, HTTPException, Depends
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from typing import Dict, List, Any, Optional
@@ -61,9 +64,11 @@ class SintomasResponse(BaseModel):
 
 # Inicializar FastAPI
 app = FastAPI(
-    title="Orion Core API",
-    description="Sistema de Clasificación de Triage de Urgencias",
-    version="1.0.0"
+    title="🔶 Orion Omega API",
+    description="Módulo de Triage - Sistema de Clasificación Inteligente de Urgencias",
+    version="1.0.0",
+    docs_url="/docs",
+    redoc_url="/redoc"
 )
 
 # Configurar CORS
@@ -97,19 +102,31 @@ def get_inference_engine() -> InferenceEngine:
     return inference_engine
 
 
-@app.get("/")
-async def root():
-    """Endpoint raíz"""
+@app.get("/api/info")
+async def api_info():
+    """Información de la API"""
     return {
-        "nombre": "Orion Core API",
+        "nombre": "🔶 Orion Omega API",
+        "modulo": "Triage",
         "version": "1.0.0",
-        "descripcion": "Sistema de Clasificación de Triage de Urgencias",
+        "descripcion": "Módulo de Triage - Clasificación Inteligente de Urgencias",
+        "arquitectura": {
+            "orion_alfa": "Módulo Administrativo (Gestión de Protocolos)",
+            "orion_omega": "Módulo de Triage (Clasificación en Tiempo Real)"
+        },
         "endpoints": {
             "sintomas": "/api/sintomas",
             "preguntas": "/api/preguntas/{sintoma}",
             "clasificar": "/api/triage"
         }
     }
+
+
+# Montar archivos estáticos para el frontend
+# Esto debe ir AL FINAL para no bloquear las rutas de la API
+frontend_path = Path(__file__).parent.parent / "frontend"
+if frontend_path.exists():
+    app.mount("/", StaticFiles(directory=str(frontend_path), html=True), name="frontend")
 
 
 @app.get("/api/sintomas", response_model=SintomasResponse)
@@ -196,6 +213,23 @@ async def clasificar_triage(
         raise HTTPException(status_code=500, detail=f"Error en clasificación: {str(e)}")
 
 
+@app.get("/api/metrics")
+async def get_metrics():
+    """Obtener métricas del sistema para el dashboard administrativo"""
+    import random
+    import time
+    
+    # Simulación de métricas en tiempo real
+    return {
+        "triage_count": random.randint(120, 150),
+        "accuracy": round(random.uniform(98.0, 99.9), 1),
+        "latency_ms": random.randint(8, 25),
+        "epoch": 204 + int(time.time() / 3600),  # Simular avance de entrenamiento
+        "active_nodes": 3,
+        "system_status": "OPTIMAL"
+    }
+
+
 @app.get("/health")
 async def health_check():
     """Endpoint de salud"""
@@ -209,8 +243,11 @@ async def health_check():
 if __name__ == "__main__":
     import uvicorn
     
-    print("🚀 Iniciando Orion Core API...")
+    print("="*60)
+    print("🔶 Orion Omega - Módulo de Triage")
+    print("🚀 Iniciando API de Clasificación Inteligente...")
     print(f"📊 Base de conocimiento: {KNOWLEDGE_BASE_PATH}")
+    print("="*60)
     
     uvicorn.run(
         "triage_api:app",

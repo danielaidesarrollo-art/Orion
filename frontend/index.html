@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Orion Emergency Module - Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#00E5FF",
+                        secondary: "#1A237E",
+                        "background-dark": "#050B14",
+                    },
+                    fontFamily: {
+                        display: ["Rajdhani", "sans-serif"],
+                        sans: ["Inter", "sans-serif"],
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        body { background-color: #050B14; }
+        .glass-card {
+            background: rgba(17, 24, 39, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        .glass-card:hover {
+            border-color: #00E5FF;
+            transform: translateY(-5px);
+            box-shadow: 0 0 30px rgba(0, 229, 255, 0.2);
+        }
+    </style>
+</head>
+<body class="bg-background-dark text-white h-screen flex flex-col items-center justify-center overflow-hidden">
+    
+    <!-- Background Effects -->
+    <div class="fixed inset-0 z-0 pointer-events-none">
+        <div class="absolute top-[-20%] left-[-20%] w-[800px] h-[800px] bg-primary/10 rounded-full blur-[120px]"></div>
+        <div class="absolute bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-blue-600/10 rounded-full blur-[100px]"></div>
+    </div>
+
+    <div class="relative z-10 text-center mb-16 px-4">
+        <div class="w-24 h-24 mx-auto mb-6 relative">
+            <div class="absolute inset-0 bg-primary/20 rounded-full blur-xl animate-pulse"></div>
+            <img src="assets/logo.jpg" alt="Orion Logo" class="w-full h-full object-cover rounded-full relative z-10 ring-2 ring-primary/50">
+        </div>
+        <h1 class="font-display text-5xl font-bold mb-2 tracking-wider">ORION EMERGENCY MODULE</h1>
+        <p class="text-gray-400 font-sans tracking-widest uppercase text-sm">Sistema Híbrido de Triage de Urgencias</p>
+    </div>
+
+    <div class="relative z-10 grid md:grid-cols-2 gap-8 px-4 max-w-4xl w-full">
+        
+        <!-- Orion Alfa Card -->
+        <a href="alfa/index.html" class="glass-card rounded-2xl p-8 group cursor-pointer text-center relative overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div class="relative z-10">
+                <div class="ttext-4xl mb-4 text-blue-400 group-hover:text-blue-300 transition-colors font-display font-bold">🔷 ORION ALFA</div>
+                <h3 class="text-xl font-bold mb-2">Módulo Administrativo</h3>
+                <p class="text-gray-400 text-sm leading-relaxed">
+                    Gestión de protocolos, configuración del sistema, supervisión de métricas y auditoría en tiempo real.
+                </p>
+                <div class="mt-6 inline-flex items-center text-blue-400 text-sm font-bold uppercase tracking-wider group-hover:translate-x-1 transition-transform">
+                    Acceder <span class="ml-2">→</span>
+                </div>
+            </div>
+        </a>
+
+        <!-- Orion Omega Card -->
+        <a href="omega/index.html" class="glass-card rounded-2xl p-8 group cursor-pointer text-center relative overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-br from-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div class="relative z-10">
+                <div class="text-4xl mb-4 text-primary group-hover:text-cyan-200 transition-colors font-display font-bold">🔶 ORION OMEGA</div>
+                <h3 class="text-xl font-bold mb-2">Módulo de Triage</h3>
+                <p class="text-gray-400 text-sm leading-relaxed">
+                    Clasificación inteligente de pacientes, asistencia con IA Med-Gemma y priorización de emergencias.
+                </p>
+                <div class="mt-6 inline-flex items-center text-primary text-sm font-bold uppercase tracking-wider group-hover:translate-x-1 transition-transform">
+                    Iniciar Triage <span class="ml-2">→</span>
+                </div>
+            </div>
+        </a>
+
+    </div>
+
+    <footer class="fixed bottom-6 text-xs text-gray-600 font-mono">
+        © 2026 Daniel AI Development | System Version 1.0.0
+    </footer>
+
+</body>
+</html>

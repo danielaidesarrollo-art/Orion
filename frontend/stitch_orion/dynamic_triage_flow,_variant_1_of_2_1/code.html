@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Orion Emergency Module - Dynamic Triage Flow</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;family=Rajdhani:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "#00E5FF", // Cyan/Electric Blue
+              secondary: "#1A237E", // Deep blue
+              "background-dark": "#050B14", // Deep space dark
+              "surface-dark": "#111827", // Slightly lighter dark
+              "surface-glass": "rgba(17, 24, 39, 0.7)",
+              "emergency-red": "#EF4444",
+              "emergency-orange": "#F97316",
+              "emergency-yellow": "#EAB308",
+              "emergency-green": "#10B981",
+              "emergency-blue": "#3B82F6",
+            },
+            fontFamily: {
+              sans: ["Inter", "sans-serif"],
+              display: ["Rajdhani", "sans-serif"],
+            },
+            borderRadius: {
+              DEFAULT: "0.5rem",
+              'xl': '1rem',
+              '2xl': '1.5rem',
+            },
+            boxShadow: {
+              'glow': '0 0 20px rgba(0, 229, 255, 0.2)',
+              'glow-orange': '0 0 20px rgba(249, 115, 22, 0.2)',
+              'glow-red': '0 0 20px rgba(239, 68, 68, 0.3)',
+            },
+            backgroundImage: {
+              'grid-pattern': "linear-gradient(to right, #1f2937 1px, transparent 1px), linear-gradient(to bottom, #1f2937 1px, transparent 1px)",
+            }
+          },
+        },
+      };
+    </script>
+<style>
+    body {
+        font-family: 'Inter', sans-serif;
+        background-color: #050B14;
+    }
+    .glass-panel {
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        background: rgba(17, 24, 39, 0.65);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .glass-alert {
+        backdrop-filter: blur(16px);
+        background: rgba(249, 115, 22, 0.1);
+        border: 1px solid rgba(249, 115, 22, 0.3);
+    }
+    .scanline {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.2));
+        background-size: 100% 4px;
+        pointer-events: none;
+        z-index: 9999;
+        opacity: 0.15;
+    }
+    .mts-gradient {
+        background: linear-gradient(to right, 
+            #EF4444 0%, #EF4444 20%, 
+            #F97316 20%, #F97316 40%, 
+            #EAB308 40%, #EAB308 60%, 
+            #10B981 60%, #10B981 80%, 
+            #3B82F6 80%, #3B82F6 100%);
+    }
+</style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-dark text-gray-100 min-h-screen antialiased selection:bg-primary selection:text-black overflow-x-hidden">
+<div class="fixed inset-0 z-[-1] pointer-events-none">
+<div class="absolute inset-0 bg-grid-pattern bg-[length:40px_40px] opacity-[0.03]"></div>
+<div class="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-secondary/20 rounded-full blur-[100px]"></div>
+<div class="absolute bottom-0 right-0 w-[400px] h-[400px] bg-primary/10 rounded-full blur-[80px]"></div>
+</div>
+<div class="scanline"></div>
+<header class="fixed top-0 w-full z-50 glass-panel border-b-0 border-white/5">
+<div class="px-4 py-3 flex items-center justify-between">
+<div class="flex items-center space-x-3">
+<div class="w-10 h-10 relative flex-shrink-0">
+<div class="absolute inset-0 bg-primary/20 rounded-full blur-md animate-pulse"></div>
+<img alt="Orion Emergency Module Logo" class="w-full h-full object-contain rounded-full relative z-10" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAlWb0BMopb7tx6mSdvLwMMftKENWvxxmayybBAlLiC0-Fb-kPjfHjalx-eqHHXLVT2maYG4hgDGmCgFJ3nQAQCYwbSA-mY27Ul9bxS_eUAxCGhVlkpG2q6lCr1lD-o6u9wc5EAi_IL09Ent628gdaPHqB9iIPOW210iTe7nITb6GjHxOm0ZwhOWVrEh38NCrY3PESuYkBVF4aTvyyGDXZELBs7U9J6kS5LQYG1FifGvZF_961J2ixx5d9FqWduTgu_ez8kkA1qDqgv"/>
+</div>
+<div>
+<h1 class="font-display font-bold text-xl tracking-wider text-white uppercase leading-none flex items-center gap-2">
+                    Orion <span class="text-[10px] bg-primary text-black px-1 rounded font-bold">V.1.0</span>
+</h1>
+<div class="flex items-center gap-1.5 mt-0.5">
+<span class="w-1.5 h-1.5 bg-emergency-green rounded-full animate-pulse"></span>
+<span class="text-[10px] uppercase tracking-widest text-primary/80 font-semibold">Triage Active</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<div class="text-right hidden sm:block">
+<div class="text-[10px] text-gray-400 font-mono">CASE ID</div>
+<div class="text-xs font-mono font-bold text-white">#3920-ALPHA</div>
+</div>
+<button class="w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center transition-colors border border-white/10">
+<span class="material-symbols-outlined text-gray-300 text-sm">settings</span>
+</button>
+</div>
+</div>
+<div class="bg-black/40 backdrop-blur-md px-4 py-1.5 flex justify-between items-center text-[10px] font-mono border-t border-white/5">
+<span class="text-blue-200/60 flex items-center gap-1">
+<span class="material-symbols-outlined text-[10px]">wifi</span>
+            LOW LATENCY MODE
+        </span>
+<span class="text-primary font-bold">00:04:12 ELAPSED</span>
+</div>
+</header>
+<main class="pt-32 pb-32 px-4 max-w-md mx-auto w-full relative space-y-5">
+<div class="animate-fade-in-up">
+<div class="relative glass-alert rounded-xl overflow-hidden shadow-glow-orange group">
+<div class="absolute left-0 top-0 bottom-0 w-1.5 bg-emergency-orange"></div>
+<div class="p-5 pl-7 relative z-10">
+<div class="flex items-start justify-between mb-3">
+<div class="flex items-center space-x-2">
+<span class="material-symbols-outlined text-emergency-orange text-2xl animate-pulse">warning</span>
+<span class="text-xs font-bold text-emergency-orange uppercase tracking-wider border border-emergency-orange/30 px-2 py-0.5 rounded bg-emergency-orange/10">Priority Action</span>
+</div>
+<div class="text-right">
+<div class="text-[10px] text-gray-400 font-mono uppercase">Conduct Code</div>
+<div class="text-lg font-display font-bold text-white leading-none">D2-ORANGE</div>
+</div>
+</div>
+<h2 class="text-lg font-bold text-white mb-2 font-display uppercase tracking-wide">
+                    Immediate Care Instructions
+                </h2>
+<div class="bg-black/30 rounded-lg p-3 border border-white/5 mb-4">
+<p class="text-sm text-gray-200 leading-relaxed font-medium">
+                        Lie patient in <span class="text-primary font-bold">lateral decubitus position</span>. Monitor airway patency continuously. Prepare for rapid transport.
+                    </p>
+</div>
+<div class="flex space-x-3">
+<button class="flex-1 bg-emergency-orange hover:bg-orange-600 text-white text-sm font-bold py-3 px-4 rounded-lg shadow-lg shadow-orange-900/20 transition-all active:scale-95 flex items-center justify-center group-hover:shadow-glow-orange">
+<span class="material-symbols-outlined text-lg mr-2">check_circle</span>
+                        CONFIRM ACTION
+                    </button>
+<button class="bg-white/5 text-gray-300 p-3 rounded-lg hover:bg-white/10 transition-colors border border-white/10 active:scale-95">
+<span class="material-symbols-outlined">mic</span>
+</button>
+</div>
+</div>
+<div class="absolute top-0 w-full h-[1px] bg-gradient-to-r from-transparent via-emergency-orange to-transparent opacity-50"></div>
+</div>
+</div>
+<div class="space-y-4">
+<div class="flex items-center justify-between px-1">
+<h3 class="text-sm font-bold text-gray-400 uppercase tracking-widest font-display">Rapid Assessment</h3>
+<span class="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded border border-primary/20 font-mono">STEP 2/5</span>
+</div>
+<div class="bg-surface-glass rounded-xl p-4 border border-white/10 shadow-lg backdrop-blur-sm">
+<div class="flex justify-between items-start mb-4">
+<div class="flex-1">
+<span class="text-xs text-primary font-mono mb-1 block">Q-SET-04</span>
+<p class="text-lg font-medium text-white">Sudden onset of symptoms?</p>
+</div>
+<span class="material-symbols-outlined text-gray-500">flash_on</span>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<button class="relative overflow-hidden group h-12 rounded-lg bg-white/5 border border-white/10 hover:border-primary hover:bg-primary/10 transition-all active:scale-[0.98]">
+<div class="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<span class="relative z-10 font-bold text-gray-300 group-hover:text-primary">YES</span>
+</button>
+<button class="h-12 rounded-lg bg-white/5 border border-white/10 hover:border-gray-500 hover:bg-white/10 transition-all active:scale-[0.98]">
+<span class="font-bold text-gray-400">NO</span>
+</button>
+</div>
+</div>
+<div class="bg-surface-glass rounded-xl p-4 border border-white/10 shadow-lg backdrop-blur-sm relative overflow-hidden">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-primary shadow-[0_0_10px_#00E5FF]"></div>
+<div class="flex justify-between items-start mb-4 pl-2">
+<div class="flex-1">
+<span class="text-xs text-primary font-mono mb-1 block">Q-SET-05</span>
+<p class="text-lg font-medium text-white">Difficulty breathing?</p>
+</div>
+<span class="material-symbols-outlined text-primary">pulmonology</span>
+</div>
+<div class="pl-2">
+<div class="grid grid-cols-2 gap-3">
+<button class="relative h-12 rounded-lg bg-primary/20 border border-primary text-primary font-bold shadow-glow transition-all active:scale-[0.98] flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-lg">check</span> YES
+                    </button>
+<button class="h-12 rounded-lg bg-white/5 border border-white/10 hover:border-gray-500 text-gray-400 font-bold transition-all active:scale-[0.98]">
+                        NO
+                    </button>
+</div>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-3 gap-3 pt-2">
+<div class="glass-panel p-3 rounded-xl border border-white/10 flex flex-col items-center justify-center relative overflow-hidden">
+<span class="text-[10px] text-gray-400 uppercase font-bold mb-1 tracking-wider">HR (BPM)</span>
+<span class="text-2xl font-display font-bold text-emergency-red animate-pulse">112</span>
+<div class="absolute bottom-0 left-0 w-full h-1 bg-emergency-red/30"></div>
+</div>
+<div class="glass-panel p-3 rounded-xl border border-white/10 flex flex-col items-center justify-center relative overflow-hidden">
+<span class="text-[10px] text-gray-400 uppercase font-bold mb-1 tracking-wider">SpO2 (%)</span>
+<span class="text-2xl font-display font-bold text-primary">94</span>
+<div class="absolute bottom-0 left-0 w-full h-1 bg-primary/30"></div>
+</div>
+<div class="glass-panel p-3 rounded-xl border border-white/10 flex flex-col items-center justify-center relative overflow-hidden">
+<span class="text-[10px] text-gray-400 uppercase font-bold mb-1 tracking-wider">BP</span>
+<span class="text-xl font-display font-bold text-white">140/90</span>
+<div class="absolute bottom-0 left-0 w-full h-1 bg-white/30"></div>
+</div>
+</div>
+<div class="bg-black/40 rounded-xl p-4 border border-white/10">
+<div class="flex justify-between items-end mb-2">
+<p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">MTS / SET Standard</p>
+<span class="text-xs font-mono text-emergency-orange font-bold">L2: VERY URGENT</span>
+</div>
+<div class="flex w-full h-4 rounded-full overflow-hidden bg-gray-800 relative">
+<div class="flex-1 bg-emergency-red opacity-30 border-r border-black/20"></div>
+<div class="flex-1 bg-emergency-orange shadow-[0_0_15px_rgba(249,115,22,0.9)] z-10 scale-y-125 relative">
+<div class="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] font-bold text-emergency-orange bg-black/80 px-1.5 py-0.5 rounded border border-emergency-orange/30">10m</div>
+</div>
+<div class="flex-1 bg-emergency-yellow opacity-30 border-r border-black/20"></div>
+<div class="flex-1 bg-emergency-green opacity-30 border-r border-black/20"></div>
+<div class="flex-1 bg-emergency-blue opacity-30"></div>
+</div>
+<div class="flex justify-between text-[8px] font-mono font-bold text-gray-500 mt-2 px-1">
+<span>RED</span>
+<span class="text-emergency-orange">ORANGE</span>
+<span>YELLOW</span>
+<span>GREEN</span>
+<span>BLUE</span>
+</div>
+</div>
+</main>
+<div class="fixed bottom-0 w-full glass-panel border-t border-white/10 z-40 pb-safe">
+<div class="max-w-md mx-auto p-4 flex items-center space-x-4">
+<button class="p-3 rounded-full bg-white/5 text-gray-400 hover:text-white hover:bg-white/10 transition-colors">
+<span class="material-symbols-outlined">history</span>
+</button>
+<div class="flex-1 h-12 bg-black/40 rounded-full flex items-center px-4 border border-white/10 focus-within:border-primary/50 transition-colors">
+<span class="material-symbols-outlined text-gray-500 mr-2">search</span>
+<input class="bg-transparent border-none focus:ring-0 w-full text-sm text-white placeholder-gray-600 font-medium" placeholder="Search protocol..." type="text"/>
+<span class="material-symbols-outlined text-primary cursor-pointer">mic</span>
+</div>
+<button class="bg-primary hover:bg-cyan-300 text-black p-3 rounded-full shadow-glow transition-all active:scale-90">
+<span class="material-symbols-outlined">send</span>
+</button>
+</div>
+<div class="h-4 w-full"></div>
+</div>
+
+</body></html>

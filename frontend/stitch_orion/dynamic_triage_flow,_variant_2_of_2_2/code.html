@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Orion Emergency Module - Triage Flow</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&amp;family=Roboto+Mono:wght@300;400;500;700&amp;family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"/>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#00E5FF", 
+                        "primary-dark": "#00B8D4",
+                        "background-light": "#F8FAFC",
+                        "background-dark": "#0B1120",
+                        "surface-dark": "#162032",
+                        "surface-light": "#FFFFFF",
+                        "accent-blue": "#2196F3",
+                        "triage-red": "#EF4444",
+                        "triage-orange": "#F97316",
+                        "triage-yellow": "#EAB308",
+                        "triage-green": "#22C55E",
+                        "triage-blue": "#3B82F6",
+                    },
+                    fontFamily: {
+                        display: ["Orbitron", "sans-serif"],
+                        mono: ["Roboto Mono", "monospace"],
+                        body: ["Inter", "sans-serif"],
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.5rem",
+                        'xl': '1rem',
+                        '2xl': '1.5rem',
+                    },
+                    boxShadow: {
+                        'neon': '0 0 10px rgba(0, 229, 255, 0.3), 0 0 20px rgba(0, 229, 255, 0.1)',
+                        'neon-red': '0 0 10px rgba(239, 68, 68, 0.4)',
+                    }
+                },
+            },
+        };
+    </script>
+<style>::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(33, 150, 243, 0.05);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(33, 150, 243, 0.2);
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(33, 150, 243, 0.4);
+        }
+        .scan-line {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: rgba(0, 229, 255, 0.1);
+            animation: scan 4s linear infinite;
+            pointer-events: none;
+            z-index: 50;
+        }
+        @keyframes scan {
+            0% { top: 0; opacity: 0; }
+            5% { opacity: 1; }
+            95% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+        .glass-panel {
+            background: rgba(22, 32, 50, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .light-mode .glass-panel {
+            background: rgba(255, 255, 255, 0.85);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-800 dark:text-slate-200 font-body min-h-screen relative overflow-x-hidden selection:bg-primary selection:text-black">
+<div class="scan-line hidden dark:block"></div>
+<div class="fixed inset-0 pointer-events-none opacity-[0.03] dark:opacity-[0.15] z-0" style="background-image: linear-gradient(rgba(33, 150, 243, 0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(33, 150, 243, 0.3) 1px, transparent 1px); background-size: 40px 40px;">
+</div>
+<header class="fixed top-0 w-full z-40 bg-surface-light/90 dark:bg-surface-dark/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-700/50 h-16 flex items-center justify-between px-4 shadow-sm">
+<div class="flex items-center space-x-3">
+<div class="relative w-10 h-10 rounded-full overflow-hidden border border-primary/30 shadow-neon">
+<img alt="Orion Module Logo" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBpcyG6EiCTumdhukxGH2dnDiB9YssD9boXgHJUsyVvKNI88tFbEJtVk3yOH6UDxPGXMXHg1_mBetlgavLkPTwRw0zoljW8tfSKg5Spfo6zgnQ2sbooDsrq6qMtDql-fQedYC2hhSlYap6vIESQ0LRc6GRZ8JxanvwH1BHVQLCwNaMy5-9BNxtcn68CaX3MA6evFQXrxlhkgZj40_kHfxZv-W9-mPZaWFfRVz3WCjg1YFR0O4JrfwLHjWjbtqH67wVwscfoRJbGji-b"/>
+</div>
+<div>
+<h1 class="font-display font-bold text-lg tracking-wider text-slate-900 dark:text-white">ORION <span class="text-primary text-xs align-top font-mono">v2.4</span></h1>
+<div class="flex items-center space-x-1">
+<span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+<p class="text-[10px] uppercase tracking-widest text-slate-500 dark:text-slate-400 font-mono">System Active</p>
+</div>
+</div>
+</div>
+<div class="flex items-center space-x-3">
+<button class="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors relative">
+<span class="absolute top-2 right-2 w-2 h-2 bg-triage-red rounded-full border-2 border-surface-light dark:border-surface-dark"></span>
+<span class="material-icons-round text-slate-600 dark:text-slate-300">notifications</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center border border-primary/50 text-primary font-bold text-xs font-mono">
+                D.AI
+            </div>
+</div>
+</header>
+<main class="relative z-10 pt-20 pb-24 px-4 max-w-lg mx-auto md:max-w-2xl">
+<div class="flex justify-between items-center mb-6">
+<div class="flex items-center space-x-2">
+<span class="material-icons-round text-primary text-sm">timer</span>
+<span class="text-xs font-mono text-slate-500 dark:text-slate-400">T-MINUS 00:45:12</span>
+</div>
+<div class="flex items-center space-x-1 text-xs font-bold text-slate-400 bg-slate-200 dark:bg-slate-800 px-2 py-1 rounded">
+<span>CASE ID:</span>
+<span class="text-slate-700 dark:text-slate-200 font-mono">#OR-9921</span>
+</div>
+</div>
+<div class="mb-6 rounded-xl overflow-hidden border-l-4 border-triage-red bg-white dark:bg-surface-dark shadow-lg relative group animate-fade-in-up">
+<div class="absolute inset-0 bg-triage-red/5 dark:bg-triage-red/10 pointer-events-none"></div>
+<div class="p-4 flex items-start justify-between border-b border-slate-100 dark:border-slate-700/50">
+<div class="flex items-center space-x-3">
+<div class="w-10 h-10 rounded-lg bg-triage-red/10 flex items-center justify-center animate-pulse">
+<span class="material-icons-round text-triage-red text-2xl">warning</span>
+</div>
+<div>
+<h2 class="text-triage-red font-bold font-display tracking-wide text-sm uppercase">Immediate Dispatch Required</h2>
+<p class="text-xs text-slate-500 dark:text-slate-400 font-mono">Priority Level: CRITICAL (D1)</p>
+</div>
+</div>
+<span class="px-2 py-1 bg-triage-red text-white text-[10px] font-bold rounded uppercase tracking-wider">High</span>
+</div>
+<div class="p-4">
+<div class="mb-3">
+<h3 class="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1 flex items-center">
+<span class="material-icons-round text-base mr-1">medical_services</span>
+                        Care Instructions
+                    </h3>
+<div class="bg-slate-50 dark:bg-black/20 p-3 rounded-lg border border-slate-200 dark:border-slate-700/50">
+<p class="text-sm font-medium text-slate-800 dark:text-slate-100 leading-relaxed">
+                            Lie patient in <span class="text-primary font-bold">lateral decubitus position</span> immediately. Ensure airway remains clear. Administer O2 at 15L/min via non-rebreather.
+                        </p>
+</div>
+</div>
+<button class="w-full py-3 bg-triage-red hover:bg-red-600 text-white rounded-lg font-bold text-sm uppercase tracking-wider shadow-neon-red transition-all flex items-center justify-center space-x-2 group-hover:scale-[1.01]">
+<span class="material-icons-round text-lg">send</span>
+<span>Confirm Dispatch Protocol</span>
+</button>
+</div>
+</div>
+<div class="space-y-6">
+<div class="flex items-center justify-between">
+<h3 class="font-display font-bold text-lg text-slate-800 dark:text-white">Assessment Phase</h3>
+<div class="flex space-x-1">
+<div class="h-1.5 w-8 bg-primary rounded-full"></div>
+<div class="h-1.5 w-8 bg-primary/30 rounded-full"></div>
+<div class="h-1.5 w-8 bg-slate-300 dark:bg-slate-700 rounded-full"></div>
+</div>
+</div>
+<div class="glass-panel rounded-2xl p-5 shadow-sm">
+<div class="flex justify-between items-center mb-4">
+<h4 class="text-sm font-bold text-slate-500 dark:text-primary uppercase tracking-wider font-mono">Key Questions</h4>
+<span class="text-xs text-slate-400">Step 2/4</span>
+</div>
+<div class="space-y-4">
+<div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 transition-all hover:border-primary/50">
+<p class="text-base font-medium mb-3 text-slate-800 dark:text-slate-100">Is the onset of symptoms sudden?</p>
+<div class="grid grid-cols-2 gap-3">
+<button class="flex items-center justify-center py-2.5 px-4 rounded-lg border-2 border-transparent bg-slate-200 dark:bg-slate-700 hover:bg-primary/10 hover:border-primary text-slate-700 dark:text-slate-300 transition-all font-medium text-sm">
+                                No
+                            </button>
+<button class="flex items-center justify-center py-2.5 px-4 rounded-lg border-2 border-primary bg-primary/10 text-primary font-bold transition-all shadow-neon text-sm">
+<span class="material-icons-round text-base mr-1">check</span>
+                                Yes
+                            </button>
+</div>
+</div>
+<div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 transition-all hover:border-primary/50">
+<p class="text-base font-medium mb-3 text-slate-800 dark:text-slate-100">Is the patient experiencing difficulty breathing?</p>
+<div class="grid grid-cols-2 gap-3">
+<button class="flex items-center justify-center py-2.5 px-4 rounded-lg border-2 border-transparent bg-slate-200 dark:bg-slate-700 hover:bg-primary/10 hover:border-primary text-slate-700 dark:text-slate-300 transition-all font-medium text-sm group">
+<span class="hidden group-hover:inline-block mr-1 opacity-0 group-hover:opacity-100 transition-opacity">×</span>
+                                No
+                            </button>
+<button class="flex items-center justify-center py-2.5 px-4 rounded-lg border-2 border-transparent bg-slate-200 dark:bg-slate-700 hover:bg-triage-red/10 hover:border-triage-red hover:text-triage-red text-slate-700 dark:text-slate-300 transition-all font-medium text-sm group">
+<span class="material-icons-round text-base mr-1 opacity-0 group-hover:opacity-100 transition-opacity text-triage-red">warning</span>
+                                Yes
+                            </button>
+</div>
+</div>
+<div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 transition-all hover:border-primary/50">
+<p class="text-base font-medium mb-3 text-slate-800 dark:text-slate-100">Pain severity (1-10)?</p>
+<input class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer dark:bg-slate-700 accent-primary mb-2" max="10" min="1" type="range" value="8"/>
+<div class="flex justify-between text-xs font-mono text-slate-400">
+<span>Mild</span>
+<span class="text-triage-orange font-bold">Severe (8)</span>
+<span class="text-triage-red">Critical</span>
+</div>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="glass-panel p-4 rounded-xl border-l-4 border-triage-orange relative overflow-hidden">
+<div class="absolute right-0 top-0 p-2 opacity-10">
+<span class="material-icons-round text-6xl">analytics</span>
+</div>
+<p class="text-xs text-slate-500 dark:text-slate-400 font-mono uppercase mb-1">MTS Classification</p>
+<div class="flex items-baseline space-x-1">
+<h2 class="text-3xl font-display font-bold text-triage-orange">Orange</h2>
+</div>
+<p class="text-xs font-medium text-triage-orange mt-1">Very Urgent</p>
+</div>
+<div class="glass-panel p-4 rounded-xl border-l-4 border-triage-orange relative overflow-hidden">
+<div class="absolute right-0 top-0 p-2 opacity-10">
+<span class="material-icons-round text-6xl">code</span>
+</div>
+<p class="text-xs text-slate-500 dark:text-slate-400 font-mono uppercase mb-1">Conduct Code</p>
+<div class="flex items-baseline space-x-1">
+<h2 class="text-3xl font-display font-bold text-white dark:text-white">D2</h2>
+</div>
+<p class="text-xs font-medium text-slate-500 dark:text-slate-400 mt-1">Protocol Ref: #882A</p>
+</div>
+</div>
+</div>
+</main>
+<footer class="fixed bottom-0 w-full bg-surface-light dark:bg-surface-dark border-t border-slate-200 dark:border-slate-700 p-4 z-40 pb-8">
+<div class="flex items-center justify-between space-x-4 max-w-lg mx-auto md:max-w-2xl">
+<button class="p-3 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700">
+<span class="material-icons-round">arrow_back</span>
+</button>
+<button class="flex-1 bg-gradient-to-r from-primary-dark to-primary hover:from-primary hover:to-primary-dark text-black font-bold font-display py-3 px-6 rounded-lg shadow-neon transform active:scale-95 transition-all flex items-center justify-center space-x-2">
+<span>SUBMIT ASSESSMENT</span>
+<span class="material-icons-round text-sm">arrow_forward</span>
+</button>
+<button class="p-3 rounded-lg border border-slate-300 dark:border-slate-600 text-primary dark:text-primary hover:bg-primary/10">
+<span class="material-icons-round">mic</span>
+</button>
+</div>
+</footer>
+<div class="fixed top-20 right-4 pointer-events-none hidden md:block opacity-50">
+<div class="flex flex-col space-y-1 items-end font-mono text-[10px] text-primary">
+<span>BPM: 102</span>
+<span>SPO2: 98%</span>
+<span>TEMP: 37.2C</span>
+</div>
+</div>
+<script>
+        // Simple interaction for the demo
+        document.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Add click ripple or simple state toggle logic here if functionality was required
+                // For UI demo, hover states handle most feedback
+            });
+        });
+    </script>
+
+</body></html>

@@ -1,0 +1,58 @@
+{
+  "timestamp": "2026-01-05T14:50:07.524238",
+  "patient_bio_hash": "e20238ab874e7c3a3469a6d9d7eec70f3bc0fb5d5679b691e88f581f80c375d9",
+  "sintoma_detectado": "dolor toracico",
+  "preguntas_realizadas": [
+    {
+      "pregunta": "¿El dolor comenzó de forma brusca?",
+      "respuesta": "si",
+      "tipo": "si_no"
+    },
+    {
+      "pregunta": "¿El dolor se irradia al brazo izquierdo, mandíbula o espalda?",
+      "respuesta": "si",
+      "tipo": "si_no"
+    },
+    {
+      "pregunta": "¿Presenta dificultad para respirar?",
+      "respuesta": "si",
+      "tipo": "si_no"
+    },
+    {
+      "pregunta": "¿Presenta sudoración fría?",
+      "respuesta": "si",
+      "tipo": "si_no"
+    }
+  ],
+  "clasificacion_reglas": {
+    "codigo": "D1",
+    "confianza": 0.9,
+    "instruccion": "EMERGENCIA - Traslado inmediato a sala de reanimación. Activar código infarto. Oxígeno, vía venosa, monitorización cardíaca."
+  },
+  "clasificacion_ai": {
+    "codigo": "N/A",
+    "confianza": 0.0,
+    "razonamiento": "AI no disponible"
+  },
+  "clasificacion_final": "D1",
+  "categoria": "CLASIFICADO",
+  "confianza": 0.9,
+  "concordancia": true,
+  "instrucciones_inmediatas": [
+    "EMERGENCIA - Traslado inmediato a sala de reanimación. Activar código infarto. Oxígeno, vía venosa, monitorización cardíaca."
+  ],
+  "causas_posibles": [
+    "Infarto agudo de miocardio",
+    "Angina inestable",
+    "Disección aórtica",
+    "Tromboembolismo pulmonar"
+  ],
+  "conducta_asignada": "URG",
+  "codigo_conducta": "D1",
+  "derivacion_vpp": false,
+  "observaciones": "Clasificación D1. Diagnósticos diferenciales: Infarto agudo de miocardio, Angina inestable, Disección aórtica",
+  "gas_consumido": 0.0034000000000000002,
+  "zkp_validation": true,
+  "threat_detected": false,
+  "honeypot_activated": false
+}

@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Orion Bio-Security Integration v2</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "#00E5FF", // Cyan/Electric Blue
+              secondary: "#0F2847", 
+              darkbg: "#020617", // Deep clinical dark
+              glass: "rgba(15, 23, 42, 0.65)",
+              "accent-alert": "#FF4444",
+              "accent-success": "#00FF94",
+            },
+            fontFamily: {
+              display: ["Rajdhani", "sans-serif"],
+              body: ["Inter", "sans-serif"],
+            },
+            boxShadow: {
+              'glow': '0 0 20px rgba(0, 229, 255, 0.25)',
+              'glow-sm': '0 0 10px rgba(0, 229, 255, 0.15)',
+            },
+            animation: {
+                'pulse-fast': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                'shimmer': 'shimmer 2.5s linear infinite',
+            },
+            keyframes: {
+                shimmer: {
+                    '0%': { transform: 'translateX(-100%)' },
+                    '100%': { transform: 'translateX(100%)' }
+                }
+            }
+          },
+        },
+      };
+    </script>
+<style>body {
+    background-color: #020617;
+    background-image: radial-gradient(at 0% 0%, hsla(253, 16%, 7%, 1) 0, transparent 50%), radial-gradient(at 50% 100%, hsla(225, 39%, 20%, 1) 0, transparent 50%);
+    min-height: 100dvh
+    }
+.glass-panel {
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2)
+    }
+.scan-line {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(to right, transparent, #00E5FF, transparent);
+    opacity: 0.6;
+    animation: scan 3s linear infinite;
+    z-index: 10
+    }
+@keyframes scan {
+    0% {
+        top: 0;
+        opacity: 0;
+        } 15% {
+        opacity: 0.8;
+        } 85% {
+        opacity: 0.8;
+        } 100% {
+        top: 100%;
+        opacity: 0;
+        }
+    }.bg-noise {
+    background-image: url(https://lh3.googleusercontent.com/aida-public/AB6AXuA6c07EH2YkLJ6LnSnGynUmYHtOgRfaZG6y8GS4qa4xSKEURXMpRY_pJ24atN7RdVvDI2Pktx2_I0HthTH-h-9tYrxtWojC6myahWjjW4045QoI8SeyEehjDeY5Esy1nKtiNTZLiuk35K6-dtT8rSA4FoLrl7tIIu6omNVkNXzo7lN1wgBZJdqBpAkd9jWlYp-3KPPRLRXAb6AlX6H7idAVu1nj_y26NN3WNy_pGvbtj5Y-Gh7LVSWrHg-jzlsKq_ZRtRzH1Rc-W7vr)
+    }</style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-body text-slate-200 antialiased overflow-x-hidden selection:bg-primary selection:text-black">
+<div class="fixed inset-0 pointer-events-none z-0 bg-noise opacity-40"></div>
+<div class="fixed top-[-10%] right-[-10%] w-96 h-96 bg-primary/10 rounded-full blur-[100px] pointer-events-none"></div>
+<div class="fixed bottom-[10%] left-[-10%] w-80 h-80 bg-blue-600/10 rounded-full blur-[80px] pointer-events-none"></div>
+<div class="relative z-10 max-w-md mx-auto min-h-screen flex flex-col p-5">
+<header class="flex items-center justify-between mb-6 pt-2">
+<div class="flex items-center gap-4">
+<div class="relative w-12 h-12 rounded-xl overflow-hidden border border-primary/40 shadow-glow-sm bg-black/60 p-0.5">
+<img alt="Orion Logo" class="w-full h-full object-cover rounded-lg opacity-90" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAqrTt2ZLiFpPZ6E3k5TB6MzggwF2r1LsTO5K49qRT_JdzPV16IjyWo3hR1e17nT3lZbWqxNQXBxRiKqSPkZg7Tn2Z3vDH5cmYVU8Uz62OetO5W4u2meCzS-UOIQ-SxvmF-hfiIwMVMxpUSQqSpDxp7aME59iazXZKGluNc8vD7LgkwoVurIojiYlMKbzGnJqms10aATbvglVsqjlQPIo6RkY1dvX6PPS7lMeJdRCTNUR8L4Zm-DHdgiYQHVNifTMcp2loQrn7Kc1fI"/>
+<div class="absolute inset-0 bg-primary/10 mix-blend-overlay"></div>
+</div>
+<div>
+<h1 class="font-display font-bold text-xl tracking-wider text-white uppercase leading-none">Orion <span class="text-primary drop-shadow-[0_0_8px_rgba(0,229,255,0.6)]">Bio-Sec</span></h1>
+<div class="flex items-center gap-1.5 mt-1">
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-success opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-accent-success"></span>
+</span>
+<p class="text-[10px] uppercase tracking-[0.2em] text-slate-400 font-medium">System Armed</p>
+</div>
+</div>
+</div>
+<div class="flex flex-col items-end">
+<div class="flex items-center gap-1 px-2 py-0.5 rounded border border-primary/20 bg-primary/5 backdrop-blur-sm">
+<span class="material-symbols-outlined text-[14px] text-primary">wifi_tethering</span>
+<span class="text-[9px] font-mono text-primary font-bold">ULTRALINK</span>
+</div>
+<span class="text-[9px] text-slate-500 mt-0.5 font-mono">LAT: 8ms</span>
+</div>
+</header>
+<main class="flex-1 flex flex-col gap-4">
+<div class="glass-panel rounded-2xl p-5 relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-white/5 to-transparent rounded-bl-full pointer-events-none"></div>
+<div class="flex justify-between items-start mb-4">
+<div>
+<p class="text-[9px] text-slate-400 uppercase tracking-widest font-bold mb-1">Target Identity</p>
+<h2 class="text-xl font-display font-bold text-white tracking-wide">Cmdr. J. Shepherd</h2>
+<p class="text-[10px] font-mono text-primary/80 mt-1 flex items-center gap-1">
+<span class="material-symbols-outlined text-[10px]">fingerprint</span>
+                        ID: OR-9921-X
+                    </p>
+</div>
+<div class="flex flex-col items-end">
+<div class="px-2 py-1 rounded bg-slate-900/60 border border-primary/30 flex items-center gap-1.5 shadow-inner">
+<span class="material-symbols-outlined text-primary text-[14px]">verified_user</span>
+<div class="flex flex-col leading-none">
+<span class="text-[9px] font-bold text-white tracking-wider">ZKP ACTIVE</span>
+<span class="text-[7px] text-slate-400">VALIDATED</span>
+</div>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-2 px-3 py-2 bg-black/20 rounded border border-white/5">
+<span class="material-symbols-outlined text-slate-500 text-[16px]">lock</span>
+<div class="flex-1 overflow-hidden">
+<p class="text-[9px] text-slate-400 font-mono truncate">
+                        HIPAA-256 AES // ANON: <span class="text-accent-success">CONFIRMED</span>
+</p>
+</div>
+</div>
+</div>
+<div class="glass-panel rounded-2xl p-1 relative overflow-hidden">
+<div class="flex items-center justify-between px-3 py-2 border-b border-white/5 bg-white/5">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-sm">monitor_heart</span>
+<span class="text-[10px] font-bold uppercase text-slate-300 tracking-wider">Wearable Feed</span>
+</div>
+<div class="flex items-center gap-1 text-[9px] text-slate-500">
+<span class="w-1.5 h-1.5 rounded-full bg-accent-success animate-pulse"></span>
+                    LIVE
+                </div>
+</div>
+<div class="grid grid-cols-3 divide-x divide-white/5 p-1">
+<div class="p-2 flex flex-col items-center justify-center relative group">
+<div class="scan-line group-hover:opacity-100 opacity-0 transition-opacity"></div>
+<span class="text-[9px] font-bold text-slate-500 uppercase mb-1">HR</span>
+<span class="text-2xl font-display font-bold text-white tracking-tight">72</span>
+<span class="text-[9px] text-accent-alert font-mono">BPM</span>
+<div class="mt-2 flex items-end justify-center gap-[2px] h-3 w-full opacity-60">
+<div class="w-1 bg-accent-alert h-[40%] rounded-t-sm"></div>
+<div class="w-1 bg-accent-alert h-[80%] rounded-t-sm animate-pulse"></div>
+<div class="w-1 bg-accent-alert h-[60%] rounded-t-sm"></div>
+</div>
+</div>
+<div class="p-2 flex flex-col items-center justify-center relative">
+<span class="text-[9px] font-bold text-slate-500 uppercase mb-1">SpO2</span>
+<span class="text-2xl font-display font-bold text-white tracking-tight">98</span>
+<span class="text-[9px] text-primary font-mono">%</span>
+<div class="mt-2 w-10 h-1 bg-slate-700/50 rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[98%] shadow-[0_0_5px_rgba(0,229,255,0.8)]"></div>
+</div>
+</div>
+<div class="p-2 flex flex-col items-center justify-center relative">
+<span class="text-[9px] font-bold text-slate-500 uppercase mb-1">RR</span>
+<span class="text-2xl font-display font-bold text-white tracking-tight">16</span>
+<span class="text-[9px] text-accent-success font-mono">RPM</span>
+<span class="material-symbols-outlined text-accent-success text-[16px] mt-1 opacity-80 animate-pulse-fast">air</span>
+</div>
+</div>
+</div>
+<div class="glass-panel rounded-2xl p-0 overflow-hidden border-l-[3px] border-l-primary flex flex-col">
+<div class="bg-black/20 p-2.5 flex justify-between items-center border-b border-white/5">
+<h3 class="text-xs font-display font-bold text-white uppercase flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[16px]">security</span>
+                    DataCore Integrity
+                </h3>
+<div class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-green-500/10 text-accent-success border border-green-500/20 tracking-wider">
+                    SECURE
+                </div>
+</div>
+<div class="p-3 flex items-center gap-3">
+<div class="relative">
+<div class="w-10 h-10 rounded-lg bg-slate-800/80 border border-slate-600/50 flex items-center justify-center shadow-inner">
+<span class="material-symbols-outlined text-primary text-xl">hub</span>
+</div>
+<div class="absolute -top-1.5 -right-1.5 w-4 h-4 bg-accent-success rounded-full border-2 border-[#020617] flex items-center justify-center shadow-lg z-10">
+<span class="material-symbols-outlined text-[10px] text-black font-extrabold">check</span>
+</div>
+</div>
+<div class="flex-1 space-y-1.5">
+<div class="flex justify-between items-center">
+<span class="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Honeypot Redirection</span>
+<span class="text-[9px] font-mono text-primary animate-pulse">ACTIVE</span>
+</div>
+<div class="w-full bg-slate-800/50 h-1.5 rounded-full overflow-hidden relative">
+<div class="absolute inset-0 bg-gradient-to-r from-transparent via-primary/50 to-transparent animate-shimmer w-full h-full"></div>
+<div class="bg-primary/20 w-full h-full"></div>
+</div>
+<p class="text-[8px] text-slate-500 font-mono">Rerouting suspicious packets to Node: Antigravity-X</p>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<button class="glass-panel p-3 rounded-xl flex items-center justify-center gap-2 hover:bg-white/5 active:scale-95 transition-all group">
+<span class="material-symbols-outlined text-slate-400 group-hover:text-white text-sm transition-colors">history</span>
+<span class="text-xs font-semibold text-slate-300 group-hover:text-white transition-colors">History Log</span>
+</button>
+<button class="bg-primary/10 border border-primary/30 p-3 rounded-xl flex items-center justify-center gap-2 hover:bg-primary/20 active:scale-95 transition-all shadow-glow-sm group">
+<span class="material-symbols-outlined text-primary text-sm group-hover:scale-110 transition-transform">emergency_share</span>
+<span class="text-xs font-semibold text-primary">Emergency Link</span>
+</button>
+</div>
+<div class="flex-1 bg-black/40 rounded-xl p-3 border border-white/5 relative overflow-hidden">
+<div class="absolute top-0 right-0 p-2 opacity-20">
+<span class="material-symbols-outlined text-white text-xs">terminal</span>
+</div>
+<div class="space-y-1.5 font-mono text-[9px]">
+<div class="flex gap-2 text-slate-500">
+<span class="opacity-50">10:42:01</span>
+<span>System initialization complete.</span>
+</div>
+<div class="flex gap-2 text-primary border-l-2 border-primary/50 pl-2 bg-primary/5 py-0.5 rounded-r">
+<span class="opacity-50">10:42:12</span>
+<span>ZKP Validation successful. Anonymity preserved.</span>
+</div>
+<div class="flex gap-2 text-slate-400">
+<span class="opacity-50">10:42:15</span>
+<span>Honeypot active. Diverted 3 pings.</span>
+</div>
+<div class="flex gap-2 text-slate-500">
+<span class="animate-pulse">_</span>
+</div>
+</div>
+</div>
+</main>
+<nav class="mt-4 glass-panel rounded-full px-6 py-3 shadow-2xl flex justify-between items-center relative z-20">
+<button class="flex flex-col items-center gap-1 text-primary relative p-1">
+<span class="material-symbols-outlined text-2xl drop-shadow-[0_0_5px_rgba(0,229,255,0.6)]">ecg_heart</span>
+<span class="w-1 h-1 bg-primary rounded-full absolute -bottom-1 shadow-[0_0_5px_rgba(0,229,255,1)]"></span>
+</button>
+<button class="flex flex-col items-center gap-1 text-slate-500 hover:text-white transition-colors p-1">
+<span class="material-symbols-outlined text-2xl">folder_shared</span>
+</button>
+<div class="relative -top-8">
+<div class="bg-gradient-to-b from-primary to-blue-600 rounded-full p-3.5 border-[6px] border-[#020617] shadow-[0_0_15px_rgba(0,229,255,0.3)] transform hover:scale-105 transition-transform cursor-pointer">
+<span class="material-symbols-outlined text-white text-2xl">mic</span>
+</div>
+</div>
+<button class="flex flex-col items-center gap-1 text-slate-500 hover:text-white transition-colors p-1">
+<span class="material-symbols-outlined text-2xl">shield</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-slate-500 hover:text-white transition-colors p-1">
+<span class="material-symbols-outlined text-2xl">settings</span>
+</button>
+</nav>
+</div>
+
+</body></html>

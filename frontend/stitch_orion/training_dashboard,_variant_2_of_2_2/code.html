@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Orion Training Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&amp;family=Roboto+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"/>
+<script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "#00E0FF", 
+              "primary-dim": "#008C9E",
+              "background-light": "#F0F4F8",
+              "background-dark": "#0B1120", 
+              "surface-light": "#FFFFFF",
+              "surface-dark": "#151E32",
+              "border-light": "#CFD8DC",
+              "border-dark": "#2A3B55",
+              "accent-blue": "#2196F3",
+              "success-green": "#00E676",
+              "alert-red": "#FF1744",
+            },
+            fontFamily: {
+              display: ["Rajdhani", "sans-serif"],
+              mono: ["Roboto Mono", "monospace"],
+            },
+            borderRadius: {
+              DEFAULT: "0.5rem",
+              lg: "1rem",
+              xl: "1.5rem",
+            },
+            boxShadow: {
+              'neon': '0 0 5px theme("colors.primary"), 0 0 20px theme("colors.primary-dim")',
+              'glass': '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
+            },
+          },
+        },
+      };
+    </script>
+<style>
+        body {
+            font-family: 'Rajdhani', sans-serif;
+        }
+        .glass-panel {
+            background: rgba(21, 30, 50, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .light .glass-panel {
+            background: rgba(255, 255, 255, 0.85);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        .grid-bg {
+            background-size: 40px 40px;
+            background-image: linear-gradient(to right, rgba(0, 224, 255, 0.05) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(0, 224, 255, 0.05) 1px, transparent 1px);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-800 dark:text-slate-100 min-h-screen flex flex-col grid-bg transition-colors duration-300">
+<header class="w-full p-4 flex items-center justify-between border-b border-border-light dark:border-border-dark glass-panel sticky top-0 z-50">
+<div class="flex items-center space-x-3">
+<div class="h-10 w-10 relative rounded-full overflow-hidden border border-primary shadow-neon">
+<img alt="Orion Module Logo" class="object-cover w-full h-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDSc66QkAkSvvG44snaYZLGzhYU67Qse-7TUiJlxmrVQUk-5hevf5HrRp9fAapEjKdiBv1yHaxomDcW6P-44xsU--dvztUC0DkWefvaYD3j-_cy8pnk40VXnK65DxZ5vWcAdX3-EUB-KxmDzVbXwcCmgsIUGxO8SDfBWwqjP7CBOwrMVUT_L0kyqkUTXMV0RyFSpi3vpSCWEgpWWtqz1frVVVAYMb4vefbA0Sr-HFS2wej2xVGz4IeNPGB6gUzpRGiH2NICUg104Mjo"/>
+</div>
+<div>
+<h1 class="text-xl font-bold tracking-widest text-slate-900 dark:text-white uppercase font-display">Orion<span class="text-primary text-xs align-top ml-1">AI</span></h1>
+<p class="text-xs text-slate-500 dark:text-slate-400 font-mono tracking-wide">EMERGENCY MODULE V2.4</p>
+</div>
+</div>
+<div class="flex items-center space-x-4">
+<div class="flex flex-col items-end">
+<span class="text-[10px] text-success-green font-mono flex items-center">
+<span class="w-2 h-2 bg-success-green rounded-full mr-1 animate-pulse"></span> ONLINE
+                </span>
+<span class="text-xs font-mono text-slate-500 dark:text-slate-400">LATENCY: 12ms</span>
+</div>
+<button class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+<span class="material-icons-round text-slate-600 dark:text-primary">settings</span>
+</button>
+</div>
+</header>
+<main class="flex-1 p-4 md:p-6 overflow-y-auto space-y-6 max-w-4xl mx-auto w-full">
+<div class="flex items-center justify-between">
+<h2 class="text-2xl font-bold font-display uppercase tracking-wider text-slate-800 dark:text-slate-200 flex items-center gap-2">
+<span class="material-icons-round text-primary">analytics</span>
+                Training Metrics
+            </h2>
+<div class="px-3 py-1 rounded bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 text-xs font-mono border border-blue-200 dark:border-blue-800">
+                MODEL: ORION-BETA-7
+            </div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+<div class="glass-panel rounded-xl p-5 relative overflow-hidden group hover:border-primary transition-colors duration-300">
+<div class="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-icons-round text-6xl">precision_manufacturing</span>
+</div>
+<div class="flex flex-col h-full justify-between relative z-10">
+<div>
+<p class="text-sm text-slate-500 dark:text-slate-400 font-mono uppercase tracking-widest mb-1">Mean Absolute Error</p>
+<div class="flex items-end gap-2">
+<span class="text-4xl font-bold font-mono text-slate-800 dark:text-white">0.042</span>
+<span class="text-xs text-success-green font-mono mb-2 flex items-center">
+<span class="material-icons-round text-sm">arrow_downward</span> 2.1%
+                            </span>
+</div>
+</div>
+<div class="mt-4 h-12 w-full bg-slate-100 dark:bg-slate-800/50 rounded overflow-hidden flex items-end px-1 pb-1 gap-1">
+<div class="w-1/6 bg-primary/30 h-[40%] rounded-sm"></div>
+<div class="w-1/6 bg-primary/40 h-[60%] rounded-sm"></div>
+<div class="w-1/6 bg-primary/50 h-[50%] rounded-sm"></div>
+<div class="w-1/6 bg-primary/60 h-[30%] rounded-sm"></div>
+<div class="w-1/6 bg-primary/80 h-[20%] rounded-sm"></div>
+<div class="w-1/6 bg-primary h-[15%] rounded-sm animate-pulse"></div>
+</div>
+</div>
+</div>
+<div class="glass-panel rounded-xl p-5 relative overflow-hidden group hover:border-primary transition-colors duration-300">
+<div class="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-icons-round text-6xl">radar</span>
+</div>
+<div class="flex flex-col h-full justify-between relative z-10">
+<div>
+<p class="text-sm text-slate-500 dark:text-slate-400 font-mono uppercase tracking-widest mb-1">Sensitivity (TPR)</p>
+<div class="flex items-end gap-2">
+<span class="text-4xl font-bold font-mono text-slate-800 dark:text-white">98.5%</span>
+<span class="text-xs text-success-green font-mono mb-2 flex items-center">
+<span class="material-icons-round text-sm">arrow_upward</span> 0.4%
+                            </span>
+</div>
+</div>
+<div class="mt-4 w-full">
+<div class="flex justify-between text-[10px] text-slate-400 font-mono mb-1">
+<span>THRESHOLD</span>
+<span>OPTIMAL</span>
+</div>
+<div class="h-2 w-full bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+<div class="h-full bg-gradient-to-r from-blue-500 to-primary w-[98.5%] shadow-[0_0_10px_rgba(33,150,243,0.5)]"></div>
+</div>
+</div>
+</div>
+</div>
+<div class="glass-panel rounded-xl p-5 relative overflow-hidden group hover:border-primary transition-colors duration-300">
+<div class="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-icons-round text-6xl">filter_center_focus</span>
+</div>
+<div class="flex flex-col h-full justify-between relative z-10">
+<div>
+<p class="text-sm text-slate-500 dark:text-slate-400 font-mono uppercase tracking-widest mb-1">Specificity (TNR)</p>
+<div class="flex items-end gap-2">
+<span class="text-4xl font-bold font-mono text-slate-800 dark:text-white">96.2%</span>
+<span class="text-xs text-slate-400 font-mono mb-2 flex items-center">
+<span class="material-icons-round text-sm">remove</span> 0.0%
+                            </span>
+</div>
+</div>
+<div class="mt-4 flex items-center gap-3">
+<div class="flex-1 text-center p-2 rounded bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700">
+<span class="block text-[10px] text-slate-500 uppercase">FP Rate</span>
+<span class="font-mono text-primary font-bold">3.8%</span>
+</div>
+<div class="flex-1 text-center p-2 rounded bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700">
+<span class="block text-[10px] text-slate-500 uppercase">FN Rate</span>
+<span class="font-mono text-primary font-bold">1.5%</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="glass-panel rounded-xl p-0 overflow-hidden border border-border-light dark:border-border-dark">
+<div class="p-4 border-b border-border-light dark:border-border-dark flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/30">
+<h3 class="font-display font-bold text-lg uppercase tracking-wide text-slate-700 dark:text-slate-200">Active Epoch Logs</h3>
+<span class="text-xs font-mono text-primary animate-pulse">● PROCESSING EPOCH 42</span>
+</div>
+<div class="max-h-60 overflow-y-auto">
+<table class="w-full text-left text-sm">
+<thead class="bg-slate-100 dark:bg-slate-900/50 text-xs uppercase font-mono text-slate-500 dark:text-slate-400 sticky top-0">
+<tr>
+<th class="p-3 font-medium">Timestamp</th>
+<th class="p-3 font-medium">Batch ID</th>
+<th class="p-3 font-medium">Loss Function</th>
+<th class="p-3 font-medium text-right">Status</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-border-light dark:divide-border-dark font-mono text-xs md:text-sm">
+<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+<td class="p-3 text-slate-600 dark:text-slate-300">14:02:45.332</td>
+<td class="p-3 text-primary">#BATCH_9921</td>
+<td class="p-3 text-slate-600 dark:text-slate-300">0.0341</td>
+<td class="p-3 text-right text-success-green">CONVERGED</td>
+</tr>
+<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+<td class="p-3 text-slate-600 dark:text-slate-300">14:02:44.891</td>
+<td class="p-3 text-primary">#BATCH_9920</td>
+<td class="p-3 text-slate-600 dark:text-slate-300">0.0412</td>
+<td class="p-3 text-right text-success-green">CONVERGED</td>
+</tr>
+<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+<td class="p-3 text-slate-600 dark:text-slate-300">14:02:44.205</td>
+<td class="p-3 text-primary">#BATCH_9919</td>
+<td class="p-3 text-slate-600 dark:text-slate-300">0.0560</td>
+<td class="p-3 text-right text-yellow-500">OPTIMIZING</td>
+</tr>
+<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors opacity-60">
+<td class="p-3 text-slate-600 dark:text-slate-300">14:02:43.112</td>
+<td class="p-3 text-primary">#BATCH_9918</td>
+<td class="p-3 text-slate-600 dark:text-slate-300">0.0582</td>
+<td class="p-3 text-right text-success-green">CONVERGED</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</main>
+<footer class="p-4 bg-surface-light dark:bg-surface-dark border-t border-border-light dark:border-border-dark mt-auto pb-8 md:pb-4">
+<div class="max-w-4xl mx-auto flex flex-col md:flex-row gap-4 items-center justify-between">
+<div class="flex items-center gap-3 w-full md:w-auto p-3 rounded-lg bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-inner">
+<div class="p-2 rounded bg-slate-200 dark:bg-slate-800">
+<span class="material-icons-round text-slate-500 dark:text-primary text-xl">local_gas_station</span>
+</div>
+<div class="flex flex-col">
+<span class="text-[10px] text-slate-500 font-mono uppercase tracking-wider">Transaction Gas</span>
+<div class="flex items-baseline gap-1">
+<span class="text-xl font-bold font-mono text-slate-800 dark:text-white">24.5</span>
+<span class="text-xs text-slate-400 font-mono">Gwei</span>
+</div>
+</div>
+<div class="h-8 w-[1px] bg-slate-300 dark:bg-slate-700 mx-2"></div>
+<div class="flex flex-col">
+<span class="text-[10px] text-slate-500 font-mono uppercase tracking-wider">Block Depth</span>
+<span class="text-sm font-mono text-primary font-bold">L2-Valid</span>
+</div>
+</div>
+<div class="flex gap-3 w-full md:w-auto">
+<button class="flex-1 md:flex-none px-6 py-3 rounded-lg border border-border-light dark:border-slate-600 text-slate-700 dark:text-slate-300 font-display font-bold uppercase tracking-wide hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+                    Pause
+                </button>
+<button class="flex-1 md:flex-none px-6 py-3 rounded-lg bg-primary text-slate-900 font-display font-bold uppercase tracking-wide shadow-[0_0_15px_rgba(0,224,255,0.4)] hover:shadow-[0_0_25px_rgba(0,224,255,0.6)] hover:bg-[#33Eaff] transition-all flex items-center justify-center gap-2">
+<span class="material-icons-round text-sm">upload_file</span>
+                    Submit Report
+                </button>
+</div>
+</div>
+</footer>
+<div class="fixed top-20 left-10 w-64 h-64 bg-primary rounded-full blur-[120px] opacity-[0.05] pointer-events-none z-0"></div>
+<div class="fixed bottom-20 right-10 w-80 h-80 bg-blue-600 rounded-full blur-[100px] opacity-[0.08] pointer-events-none z-0"></div>
+
+</body></html>
