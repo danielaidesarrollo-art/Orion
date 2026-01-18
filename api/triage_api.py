@@ -17,6 +17,8 @@ import sys
 sys.path.append(str(Path(__file__).parent.parent))
 
 from core.inference_engine import InferenceEngine, TriageResult
+from core.resource_predictor import ResourcePredictor, EnvironmentalFactors, PredictionResult
+from fastapi import UploadFile, File
 
 
 # Modelos de datos
@@ -62,6 +64,26 @@ class SintomasResponse(BaseModel):
     total: int
 
 
+class PredictionRequest(BaseModel):
+    """Solicitud de predicción de recursos"""
+    datetime_str: str = Field(description="Fecha y hora objetivo (YYYY-MM-DD HH:MM)")
+    weather: str = Field("sunny", description="sunny, rainy, storm")
+    traffic: str = Field("low", description="low, medium, high")
+    event: str = Field("none", description="none, concert, protest, holiday")
+
+
+class AuthRequest(BaseModel):
+    """Solicitud de autenticación BioCore"""
+    staff_id: str
+    bio_hash: str = Field(None, description="Hash biométrico simulado")
+
+class AuthResponse(BaseModel):
+    """Respuesta de autenticación"""
+    authenticated: bool
+    token: str
+    message: str
+
+
 # Inicializar FastAPI
 app = FastAPI(
     title="🔶 Orion Omega API",
@@ -83,8 +105,9 @@ app.add_middleware(
 # Ruta a la base de conocimiento
 KNOWLEDGE_BASE_PATH = Path(__file__).parent.parent / "data" / "triage_knowledge_base.json"
 
-# Instancia global del motor de inferencia
+# Instancia global del motor de inferencia y predictor
 inference_engine: Optional[InferenceEngine] = None
+resource_predictor: Optional[ResourcePredictor] = None
 
 
 def get_inference_engine() -> InferenceEngine:
@@ -100,6 +123,14 @@ def get_inference_engine() -> InferenceEngine:
         inference_engine = InferenceEngine(str(KNOWLEDGE_BASE_PATH))
     
     return inference_engine
+
+
+def get_resource_predictor() -> ResourcePredictor:
+    """Dependency para obtener el predictor de recursos"""
+    global resource_predictor
+    if resource_predictor is None:
+        resource_predictor = ResourcePredictor()
+    return resource_predictor
 
 
 @app.get("/api/info")
@@ -212,6 +243,85 @@ async def clasificar_triage(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error en clasificación: {str(e)}")
 
+
+@app.post("/api/predict/train")
+async def train_model(
+    file: UploadFile = File(...),
+    predictor: ResourcePredictor = Depends(get_resource_predictor)
+):
+    """
+    Entrena el modelo de predicción usando un CSV histórico.
+    
+    El CSV debe tener columnas: date, hour, patients_seen
+    """
+    if not file.filename.endswith('.csv'):
+        raise HTTPException(status_code=400, detail="El archivo debe ser un CSV")
+    
+    content = await file.read()
+    result = predictor.train_from_csv(content)
+    
+    if "error" in result:
+        raise HTTPException(status_code=400, detail=result["error"])
+        
+    return result
+
+
+@app.post("/api/predict/resources")
+async def predict_resources(
+    request: PredictionRequest,
+    predictor: ResourcePredictor = Depends(get_resource_predictor)
+):
+    """
+    Predice los recursos necesarios para una fecha/hora y condiciones dadas.
+    """
+    from datetime import datetime
+    
+    try:
+        target_time = datetime.strptime(request.datetime_str, "%Y-%m-%d %H:%M")
+        
+        factors = EnvironmentalFactors(
+            weather=request.weather,
+            traffic=request.traffic,
+            event=request.event
+        )
+        
+        prediction = predictor.predict(target_time, factors)
+        return prediction
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error en predicción: {str(e)}")
+
+
+@app.post("/api/auth/biocore", response_model=AuthResponse)
+async def authenticate_biocore(request: AuthRequest):
+    """
+    Autentica al personal médico contra BioCore
+    """
+    # Lógica Mock de BioCore
+    # En producción: Verificar hash biométrico contra base de datos segura
+    
+    if request.staff_id.lower() in ["doctor", "admin", "medic-01", "3920-omega"]:
+        return AuthResponse(
+            authenticated=True,
+            token="bio-token-xyz-123",
+            message="Identidad Biométrica Confirmada"
+        )
+    else:
+        # Simular fallo
+        # raise HTTPException(status_code=401, detail="Identidad no verificada")
+        # Para facilitar demos, permitimos cualquier ID por ahora pero retornamos false si es muy corto
+        if len(request.staff_id) < 3:
+             return AuthResponse(
+                authenticated=False,
+                token="",
+                message="ID Inválido o lectura biométrica fallida"
+            )
+            
+        return AuthResponse(
+            authenticated=True,
+            token="bio-token-demo-999",
+            message="Identidad Confirmada (Modo Demo)"
+        )
 
 @app.get("/api/metrics")
 async def get_metrics():

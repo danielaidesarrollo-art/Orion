@@ -7,7 +7,11 @@ import os
 import json
 from typing import Dict, List, Any, Optional
 from dataclasses import dataclass
-import google.generativeai as genai
+try:
+    import google.generativeai as genai
+    GOOGLE_GENAI_AVAILABLE = True
+except ImportError:
+    GOOGLE_GENAI_AVAILABLE = False
 
 
 @dataclass
@@ -53,6 +57,9 @@ class MedGemmaClient:
             if not api_key:
                 raise ValueError("GOOGLE_API_KEY no configurada")
             
+            if not GOOGLE_GENAI_AVAILABLE:
+                raise ImportError("La librería 'google-generativeai' no está instalada. Ejecute: pip install google-generativeai")
+            
             genai.configure(api_key=api_key)
             # Usar Gemini 2.0 Flash con capacidades médicas
             self.model = genai.GenerativeModel('gemini-2.0-flash-exp')
@@ -68,29 +75,30 @@ class MedGemmaClient:
         else:
             raise ValueError(f"Modo no soportado: {mode}")
     
-    def classify(self, sintoma: str, respuestas: Dict[str, Any]) -> MedGemmaResult:
+    def classify(self, sintoma: str, respuestas: Dict[str, Any], images: Optional[List[Any]] = None) -> MedGemmaResult:
         """
-        Clasifica un caso de triage usando Med-Gemma
+        Clasifica un caso de triage usando Med-Gemma (Multimodal)
         
         Args:
             sintoma: Síntoma principal
             respuestas: Diccionario con respuestas a preguntas
+            images: Lista de imágenes (PIL.Image o bytes) para análisis visual (Astra Style)
             
         Returns:
             MedGemmaResult con clasificación y razonamiento
         """
         # Construir prompt médico
-        prompt = self._build_medical_prompt(sintoma, respuestas)
+        prompt = self._build_medical_prompt(sintoma, respuestas, has_images=bool(images))
         
-        # Obtener respuesta del modelo
-        response = self._query_model(prompt)
+        # Obtener respuesta del modelo (soporte multimodal)
+        response = self._query_model(prompt, images)
         
         # Parsear respuesta
         result = self._parse_response(response)
         
         return result
     
-    def _build_medical_prompt(self, sintoma: str, respuestas: Dict[str, Any]) -> str:
+    def _build_medical_prompt(self, sintoma: str, respuestas: Dict[str, Any], has_images: bool = False) -> str:
         """Construye el prompt médico para Med-Gemma"""
         
         # Formatear respuestas
@@ -99,13 +107,17 @@ class MedGemmaClient:
             for pregunta, respuesta in respuestas.items()
         ])
         
+        visual_context = ""
+        if has_images:
+            visual_context = "\n\nINFORMACIÓN VISUAL:\nSe adjuntan imágenes clínicas (lesiones, estado del paciente). Úsalas para refinar la clasificación (ej: signos de infección, cianosis, profusión de sangrado)."
+        
         prompt = f"""Eres un médico de urgencias experto con amplia experiencia en clasificación de triage.
 
 CASO CLÍNICO:
 Síntoma principal: {sintoma.upper()}
 
 Hallazgos clínicos:
-{respuestas_texto}
+{respuestas_texto}{visual_context}
 
 TAREA:
 Clasifica este caso según los siguientes códigos de triage:
@@ -125,6 +137,7 @@ Clasifica este caso según los siguientes códigos de triage:
 INSTRUCCIONES:
 1. Analiza el caso considerando:
    - Gravedad de los síntomas
+   - EVIDENCIA VISUAL (si se proporciona) para detectar signos de alarma
    - Riesgo de deterioro rápido
    - Diagnósticos diferenciales más probables
    - Necesidad de intervención inmediata
@@ -134,28 +147,32 @@ INSTRUCCIONES:
 {{
   "codigo_triage": "D1",
   "confianza": 0.95,
-  "razonamiento": "Explicación clínica detallada de por qué este código",
+  "razonamiento": "Explicación clínica detallada citando hallazgos visuales si los hay",
   "diagnosticos_diferenciales": ["Diagnóstico 1", "Diagnóstico 2", "Diagnóstico 3"],
   "recomendaciones_adicionales": ["Recomendación 1", "Recomendación 2"]
 }}
 
 IMPORTANTE:
 - Sé conservador: en caso de duda, escala al código más grave
+- Si ves imágenes, cita explícitamente qué observas en el 'razonamiento'
 - Proporciona razonamiento clínico claro y específico
-- Lista los diagnósticos diferenciales más probables
-- Incluye recomendaciones de manejo inmediato
 
 Responde ahora:"""
         
         return prompt
     
-    def _query_model(self, prompt: str) -> str:
-        """Consulta al modelo Med-Gemma"""
+    def _query_model(self, prompt: str, images: Optional[List[Any]] = None) -> str:
+        """Consulta al modelo Med-Gemma (Soporte Multimodal)"""
         
         if self.mode == "google_ai":
             try:
+                # Preparar contenido (Multimodal: [Texto, Imagen1, Imagen2...])
+                content = [prompt]
+                if images:
+                    content.extend(images)
+                
                 response = self.model.generate_content(
-                    prompt,
+                    content,
                     generation_config=genai.types.GenerationConfig(
                         temperature=0.1,  # Baja temperatura para respuestas consistentes
                         top_p=0.95,
@@ -166,6 +183,8 @@ Responde ahora:"""
                 return response.text
             
             except Exception as e:
+                # Fallback o re-raise
+                print(f"Error en llamada a Med-Gemma: {e}")
                 raise RuntimeError(f"Error al consultar Med-Gemma: {e}")
         
         else:

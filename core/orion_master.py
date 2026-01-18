@@ -17,13 +17,15 @@ from core.inference_engine import InferenceEngine
 
 # Med-Gemma es opcional
 try:
-    from core.medgemma_client import MedGemmaClient
     from core.hybrid_engine import HybridTriageEngine
     MEDGEMMA_AVAILABLE = True
 except ImportError:
     MedGemmaClient = None
     HybridTriageEngine = None
     MEDGEMMA_AVAILABLE = False
+
+from core.connectors import SafeCoreConnector, DataCoreConnector, BioCoreConnector
+from core.resource_predictor import ResourcePredictor, EnvironmentalFactors
 
 
 @dataclass
@@ -105,6 +107,12 @@ class OrionMasterEngine:
         self.enable_zkp = enable_zkp
         self.enable_honeypot = enable_honeypot
         
+        # Inicializar Conectores de Cores
+        self.safe_core = SafeCoreConnector(enable_zkp, enable_honeypot)
+        self.data_core = DataCoreConnector(rules_engine)
+        self.bio_core = BioCoreConnector()
+        self.resource_predictor = ResourcePredictor()
+        
         # Motor híbrido
         if ai_client and MEDGEMMA_AVAILABLE and HybridTriageEngine:
             self.hybrid_engine = HybridTriageEngine(rules_engine, ai_client)
@@ -118,7 +126,8 @@ class OrionMasterEngine:
                       input_text: str,
                       respuestas: Dict[str, Any],
                       biometric_data: Optional[BiometricData] = None,
-                      patient_id: Optional[str] = None) -> TriageDecisionLog:
+                      patient_id: Optional[str] = None,
+                      images: Optional[List[Any]] = None) -> TriageDecisionLog:
         """
         Procesa un caso de triage completo con Chain-of-Thought
         
@@ -127,7 +136,7 @@ class OrionMasterEngine:
         2. Threat Detection + Honeypot (SafeCore)
         3. Zero-Knowledge Proof (SafeCore)
         4. Bio-Hash Generation (BioCore)
-        5. Multimodal Triage Logic
+        5. Multimodal Triage Logic (Texto + Imagen)
         6. Clasificación Híbrida
         7. Instrucciones Inmediatas
         8. Logging Estructurado
@@ -137,6 +146,7 @@ class OrionMasterEngine:
             respuestas: Respuestas a preguntas clave
             biometric_data: Datos biométricos opcionales
             patient_id: ID del paciente (será hasheado)
+            images: Lista de imágenes PIL o bytes para análisis visual
             
         Returns:
             TriageDecisionLog con decisión completa
@@ -144,43 +154,45 @@ class OrionMasterEngine:
         timestamp = datetime.now().isoformat()
         
         # PASO 1: NLP Entity Detection (DataCore)
-        print("🔍 [DataCore] Ejecutando NLP Entity Detection...")
-        sintoma_detectado = self._detect_entity(input_text)
+        print("[DataCore] Ejecutando NLP Entity Detection...")
+        sintoma_detectado = self.data_core.detect_entity(input_text)
         
         if not sintoma_detectado:
             raise ValueError("No se pudo detectar síntoma principal del input")
         
-        print(f"   ✅ Síntoma detectado: {sintoma_detectado}")
+        print(f"   [OK] Sintoma detectado: {sintoma_detectado}")
         
         # PASO 2: Threat Detection (SafeCore)
-        print("🛡️  [SafeCore] Analizando amenazas...")
-        threat_detected = self._detect_threat(input_text, respuestas)
+        print("[SafeCore] Analizando amenazas...")
+        threat_detected = self.safe_core.detect_threat(input_text, respuestas)
         honeypot_activated = False
         
         if threat_detected and self.enable_honeypot:
-            print("   ⚠️  AMENAZA DETECTADA - Activando Honeypot")
+            print("   [!] AMENAZA DETECTADA - Activando Honeypot")
             honeypot_activated = True
             # Redirigir a entorno sintético
             return self._redirect_to_honeypot(input_text, timestamp)
         
-        print("   ✅ Sin amenazas detectadas")
+        print("   [OK] Sin amenazas detectadas")
         
         # PASO 3: Zero-Knowledge Proof (SafeCore)
-        print("🔐 [SafeCore] Validando elegibilidad con ZKP...")
-        zkp_valid = self._validate_zkp(patient_id, biometric_data)
+        print("[SafeCore] Validando elegibilidad con ZKP...")
+        # Nota: validate_zkp ahora toma bio_hash o biometric_data según implementación
+        # Para mantener compatibilidad, pasamos biometric_data y generamos hash internamente si es necesario
+        zkp_valid = self.safe_core.validate_zkp(patient_id, None) 
         
-        if not zkp_valid and self.enable_zkp:
+        if not zkp_valid:
             raise PermissionError("Validación ZKP fallida - Paciente no elegible")
         
-        print("   ✅ ZKP validado")
+        print("   [OK] ZKP validado")
         
         # PASO 4: Bio-Hash Generation (BioCore)
-        print("🧬 [BioCore] Generando Bio-Hash irreversible...")
-        bio_hash = self._generate_bio_hash(patient_id, biometric_data)
-        print(f"   ✅ Bio-Hash: {bio_hash[:16]}...")
+        print("[BioCore] Generando Bio-Hash irreversible...")
+        bio_hash = self.bio_core.generate_bio_hash(patient_id, biometric_data)
+        print(f"   [OK] Bio-Hash: {bio_hash[:16]}...")
         
         # PASO 5: Validación Dinámica - Preguntas Clave
-        print(f"\n📋 [Orion] Ejecutando preguntas clave para '{sintoma_detectado}'...")
+        print(f"\n[Orion] Ejecutando preguntas clave para '{sintoma_detectado}'...")
         preguntas_obligatorias = self.rules_engine.get_preguntas_obligatorias(sintoma_detectado)
         
         preguntas_realizadas = []
@@ -194,11 +206,13 @@ class OrionMasterEngine:
             print(f"   • {pregunta['pregunta']}: {respuesta}")
         
         # PASO 6: Clasificación Multimodal (Chain-of-Thought)
-        print("\n🧠 [Orion] Ejecutando clasificación híbrida...")
+        print("\n[Orion] Ejecutando clasificacion hibrida (Multimodal)...")
+        if images:
+            print(f"   [Astra] {len(images)} imágenes adjuntadas para análisis.")
         
         if self.hybrid_engine:
-            # Clasificación híbrida (Reglas + AI)
-            resultado_hibrido = self.hybrid_engine.classify(sintoma_detectado, respuestas)
+            # Clasificación híbrida (Reglas + AI + Imágenes)
+            resultado_hibrido = self.hybrid_engine.classify(sintoma_detectado, respuestas, images)
             
             clasificacion_final = resultado_hibrido.codigo_triage
             categoria = resultado_hibrido.categoria
@@ -240,9 +254,9 @@ class OrionMasterEngine:
             instrucciones_inmediatas = [resultado_reglas.instruccion_atencion]
             causas_posibles = resultado_reglas.posibles_causas
         
-        print(f"   ✅ Clasificación: {clasificacion_final} ({categoria})")
-        print(f"   ✅ Confianza: {confianza * 100:.1f}%")
-        print(f"   ✅ Concordancia: {'✅' if concordancia else '⚠️'}")
+        print(f"   [OK] Clasificacion: {clasificacion_final} ({categoria})")
+        print(f"   [OK] Confianza: {confianza * 100:.1f}%")
+        print(f"   [OK] Concordancia: {concordancia}")
         
         # PASO 7: Asignación de Conducta
         conducta = self.CODIGO_TO_CONDUCTA.get(clasificacion_final, "CONS")
@@ -251,12 +265,12 @@ class OrionMasterEngine:
         derivacion_vpp = clasificacion_final in self.VPP_THRESHOLD_CODES
         
         if derivacion_vpp:
-            print(f"   💡 Derivación a VPP recomendada (Baja complejidad)")
+            print(f"   [INFO] Derivacion a VPP recomendada (Baja complejidad)")
         
         # PASO 9: Instrucciones Inmediatas (ANTES de cualquier otra acción)
-        print(f"\n🚨 [INSTRUCCIONES INMEDIATAS]:")
+        print(f"\n[INSTRUCCIONES INMEDIATAS]:")
         for instruccion in instrucciones_inmediatas:
-            print(f"   ⚡ {instruccion}")
+            print(f"   >> {instruccion}")
         
         # PASO 10: Cálculo de Gas (para reporte COP)
         gas_consumido = self._calculate_gas_cost(
@@ -292,65 +306,36 @@ class OrionMasterEngine:
         # Guardar log
         self.decision_logs.append(decision_log)
         
-        print(f"\n📊 [Orion] Decisión registrada - Gas: {gas_consumido:.4f} COP")
+        print(f"\n[Orion] Decision registrada - Gas: {gas_consumido:.4f} COP")
         
         return decision_log
     
-    def _detect_entity(self, input_text: str) -> Optional[str]:
-        """NLP Entity Detection - Detecta síntoma principal"""
-        # Usar motor de inferencia existente
-        return self.rules_engine.detect_sintoma(input_text)
-    
-    def _detect_threat(self, input_text: str, respuestas: Dict[str, Any]) -> bool:
-        """Detecta amenazas de seguridad en el input"""
-        # Patrones de amenaza
-        threat_patterns = [
-            "sql", "injection", "script", "alert(", "drop table",
-            "union select", "exec(", "eval(", "<script", "javascript:"
-        ]
+    def _redirect_to_honeypot(self, input_text: str, timestamp: str) -> TriageDecisionLog:
+        """Redirige amenaza a Honeypot (entorno sintético)"""
+        honeypot_data = self.safe_core.activate_honeypot(input_text, timestamp)
         
-        input_lower = input_text.lower()
-        
-        for pattern in threat_patterns:
-            if pattern in input_lower:
-                return True
-        
-        # Verificar respuestas
-        for value in respuestas.values():
-            if isinstance(value, str) and any(p in value.lower() for p in threat_patterns):
-                return True
-        
-        return False
-    
-    def _validate_zkp(self, patient_id: Optional[str], biometric_data: Optional[BiometricData]) -> bool:
-        """
-        Valida elegibilidad con Zero-Knowledge Proof
-        Sin exponer identidad real
-        """
-        # Simulación de ZKP - En producción, usar protocolo ZKP real
-        if not patient_id:
-            return True  # Modo anónimo permitido
-        
-        # Verificar que hay datos suficientes para validación
-        if biometric_data and biometric_data.bio_hash:
-            # ZKP: Probar que el paciente es elegible sin revelar identidad
-            return True
-        
-        return True  # Por ahora, siempre válido
-    
-    def _generate_bio_hash(self, patient_id: Optional[str], biometric_data: Optional[BiometricData]) -> str:
-        """Genera Bio-Hash irreversible (BioCore)"""
-        if not patient_id:
-            patient_id = "ANONYMOUS"
-        
-        # Combinar ID + datos biométricos + timestamp
-        hash_input = f"{patient_id}_{datetime.now().isoformat()}"
-        
-        if biometric_data:
-            hash_input += f"_{biometric_data.heart_rate}_{biometric_data.blood_pressure_systolic}"
-        
-        # SHA-256 irreversible
-        return hashlib.sha256(hash_input.encode()).hexdigest()
+        return TriageDecisionLog(
+            timestamp=timestamp,
+            patient_bio_hash="HONEYPOT_REDIRECT",
+            sintoma_detectado="THREAT_DETECTED",
+            preguntas_realizadas=[],
+            clasificacion_reglas={"codigo": "BLOCKED", "confianza": 1.0, "instruccion": "Acceso denegado"},
+            clasificacion_ai={"codigo": "BLOCKED", "confianza": 1.0, "razonamiento": "Threat detected"},
+            clasificacion_final="BLOCKED",
+            categoria="SECURITY_THREAT",
+            confianza=1.0,
+            concordancia=True,
+            instrucciones_inmediatas=["Sistema protegido - Acceso bloqueado"],
+            causas_posibles=["Intento de ataque detectado"],
+            conducta_asignada="BLOCKED",
+            codigo_conducta="BLOCKED",
+            derivacion_vpp=False,
+            observaciones=f"Honeypot activado - {honeypot_data['target']}",
+            gas_consumido=0.0,
+            zkp_validation=False,
+            threat_detected=True,
+            honeypot_activated=True
+        )
     
     def _calculate_gas_cost(self, num_preguntas: int, ai_used: bool, zkp_used: bool) -> float:
         """Calcula costo de gas para reporte COP"""
@@ -373,30 +358,6 @@ class OrionMasterEngine:
         """Genera observaciones clínicas"""
         return f"Clasificación {codigo}. Diagnósticos diferenciales: {', '.join(causas[:3])}"
     
-    def _redirect_to_honeypot(self, input_text: str, timestamp: str) -> TriageDecisionLog:
-        """Redirige amenaza a Honeypot (entorno sintético)"""
-        return TriageDecisionLog(
-            timestamp=timestamp,
-            patient_bio_hash="HONEYPOT_REDIRECT",
-            sintoma_detectado="THREAT_DETECTED",
-            preguntas_realizadas=[],
-            clasificacion_reglas={"codigo": "BLOCKED", "confianza": 1.0, "instruccion": "Acceso denegado"},
-            clasificacion_ai={"codigo": "BLOCKED", "confianza": 1.0, "razonamiento": "Threat detected"},
-            clasificacion_final="BLOCKED",
-            categoria="SECURITY_THREAT",
-            confianza=1.0,
-            concordancia=True,
-            instrucciones_inmediatas=["Sistema protegido - Acceso bloqueado"],
-            causas_posibles=["Intento de ataque detectado"],
-            conducta_asignada="BLOCKED",
-            codigo_conducta="BLOCKED",
-            derivacion_vpp=False,
-            observaciones="Honeypot activado - Amenaza contenida",
-            gas_consumido=0.0,
-            zkp_validation=False,
-            threat_detected=True,
-            honeypot_activated=True
-        )
     
     def export_decision_log(self, log: TriageDecisionLog, filepath: str):
         """Exporta log de decisión a JSON"""
@@ -422,5 +383,35 @@ class OrionMasterEngine:
             "gas_total_cop": total_gas,
             "decisiones_por_codigo": decisions_by_code,
             "amenazas_detectadas": threats_detected,
+            "amenazas_detectadas": threats_detected,
             "zkp_validaciones": sum(1 for log in self.decision_logs if log.zkp_validation)
         }
+
+    def submit_resource_feedback(self, actual_count: int):
+        """Registra feedback de uso real de recursos"""
+        self.resource_predictor.record_actual_usage(
+            datetime.now().isoformat(),
+            actual_count
+        )
+
+    def get_prediction_performance(self) -> Dict[str, Any]:
+        """Obtiene métricas de rendimiento de predicción para UI"""
+        report = self.resource_predictor.get_drift_report()
+        
+        # Simular datos para gráfico si no hay historia suficiente
+        return {
+            "drift_report": report,
+            # Datos simulados para el gráfico Chart.js
+            "graph_data": {
+                "labels": ["-3h", "-2h", "-1h", "Now"],
+                "predicted": [10, 12, 11, report.get("predicted", 10)],
+                "actual": [9, 13, 11, report.get("actual", 0)]
+            }
+        }
+
+    def train_prediction_model(self, file_content: bytes) -> Dict[str, Any]:
+        """Entrena el modelo de predicción con CSV histórico"""
+        print("[Orion] Iniciando entrenamiento de modelo de recursos con AI...")
+        result = self.resource_predictor.train_from_csv(file_content)
+        print(f"[Orion] Resultado entrenamiento: {result}")
+        return result

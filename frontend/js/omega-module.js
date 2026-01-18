@@ -1,6 +1,4 @@
-/**
- * Orion Omega - Triage Module Logic
- */
+// Orion Omega - Triage Module Logic
 
 document.addEventListener('DOMContentLoaded', () => {
     initTriageModule();
@@ -14,22 +12,142 @@ function initTriageModule() {
         symptomInput: document.getElementById('symptom-search'),
         searchBtn: document.getElementById('btn-search'),
         micBtn: document.getElementById('btn-mic'),
-        mainContainer: document.querySelector('main'),
-
-        // Sections to likely replace/update
-        triageResultSection: document.getElementById('triage-result'), // We'll add this ID to HTML
-        questionsSection: document.getElementById('questions-section'), // We'll add this ID to HTML
-        vitalsSection: document.getElementById('vitals-section'), // We'll add this ID to HTML
+        resultContainer: document.getElementById('result-container'),
+        questionsContainer: document.getElementById('questions-container'),
+        arToggleBtn: document.getElementById('btn-ar-toggle'),
+        arVideo: document.getElementById('ar-feed'),
+        reticle: document.getElementById('hud-reticle')
     };
 
     // State
     let state = {
         symptom: null,
         answers: {},
-        questions: []
+        questions: [],
+        arMode: false,
+        authenticated: false
     };
 
-    // --- Event Listeners ---
+    // --- Interaction Handlers ---
+
+    if (elements.arToggleBtn) {
+        elements.arToggleBtn.addEventListener('click', toggleARMode);
+    }
+
+    // Expose auth function globally
+    window.authenticateBio = async function () {
+        const staffId = document.getElementById('staff-id-input').value;
+        const statusText = document.getElementById('bio-status-text');
+
+        if (!staffId) return;
+
+        statusText.innerText = "VERIFYING BIOMETRICS...";
+        statusText.className = "text-yellow-400 font-mono text-sm mb-8 animate-pulse";
+
+        try {
+            const response = await fetch('/api/auth/biocore', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ staff_id: staffId, bio_hash: "mock-hash" })
+            });
+            const data = await response.json();
+
+            if (data.authenticated) {
+                statusText.innerText = "IDENTITY CONFIRMED. ACCESS GRANTED.";
+                statusText.className = "text-green-500 font-mono text-sm mb-8";
+
+                await new Promise(r => setTimeout(r, 1000));
+
+                state.authenticated = true;
+                toggleBioModal(false);
+                toggleARMode(); // Resume AR activation
+            } else {
+                statusText.innerText = "ACCESS DENIED. INVALID CREDENTIALS.";
+                statusText.className = "text-red-500 font-mono text-sm mb-8";
+            }
+        } catch (e) {
+            console.error(e);
+            statusText.innerText = "SYSTEM ERROR. RETRY.";
+            statusText.className = "text-red-500 font-mono text-sm mb-8";
+        }
+    };
+
+    function toggleBioModal(show) {
+        const modal = document.getElementById('bio-auth-modal');
+        const inputDiv = document.getElementById('bio-auth-input');
+
+        if (show) {
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            // Animate workflow
+            setTimeout(() => {
+                inputDiv.classList.remove('opacity-0', 'translate-y-4');
+                document.getElementById('staff-id-input').focus();
+            }, 1000);
+        } else {
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            inputDiv.classList.add('opacity-0', 'translate-y-4');
+        }
+    }
+
+    async function toggleARMode() {
+        // Security Gate
+        if (!state.arMode && !state.authenticated) {
+            console.log("🔒 Access Request - BioCore Auth Required");
+            toggleBioModal(true);
+            return;
+        }
+
+        state.arMode = !state.arMode;
+        const body = document.body;
+
+        if (state.arMode) {
+            console.log('🕶️ Activando HUD / AR Mode...');
+            // ... (rest of activation logic)
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: 'environment' }
+                });
+
+                if (elements.arVideo) {
+                    elements.arVideo.srcObject = stream;
+                    elements.arVideo.classList.remove('opacity-0');
+                }
+
+                // Add HUD classes
+                body.classList.add('hud-active');
+                if (elements.reticle) elements.reticle.style.opacity = '1';
+                document.getElementById('ambient-bg').style.opacity = '0'; // Hide ambient bg
+
+                // Visual feedback on button
+                elements.arToggleBtn.classList.add('bg-primary', 'text-black');
+                elements.arToggleBtn.classList.remove('bg-white/5');
+
+            } catch (err) {
+                console.error("Error accessing camera:", err);
+                alert("Camera access required for AR Mode.");
+                state.arMode = false;
+            }
+        } else {
+            console.log('🕶️ Desactivando HUD Mode...');
+
+            // Stop video
+            if (elements.arVideo && elements.arVideo.srcObject) {
+                const tracks = elements.arVideo.srcObject.getTracks();
+                tracks.forEach(track => track.stop());
+                elements.arVideo.srcObject = null;
+                elements.arVideo.classList.add('opacity-0');
+            }
+
+            // Remove HUD classes
+            body.classList.remove('hud-active');
+            if (elements.reticle) elements.reticle.style.opacity = '0';
+            document.getElementById('ambient-bg').style.opacity = '1';
+
+            // Reset button
+            elements.arToggleBtn.classList.remove('bg-primary', 'text-black');
+            elements.arToggleBtn.classList.add('bg-white/5');
+        }
+    }
 
     if (elements.searchBtn) {
         elements.searchBtn.addEventListener('click', handleSearch);
@@ -41,32 +159,50 @@ function initTriageModule() {
         });
     }
 
-    // --- Handlers ---
-
     async function handleSearch() {
         const query = elements.symptomInput.value.trim();
         if (!query) return;
 
         console.log(`Searching for: ${query}`);
 
+        // Show loading state
+        if (elements.questionsContainer) {
+            elements.questionsContainer.innerHTML = `<div class="text-center p-8 text-primary animate-pulse">Analyzing symptom...</div>`;
+        }
+
         try {
-            // In a real flow we might first search/validate symptom
-            // For now, let's treat the input as the selected symptom
             state.symptom = query;
+            state.answers = {}; // Reset answers
+
+            // Clear previous results
+            if (elements.resultContainer) elements.resultContainer.innerHTML = '';
 
             // Fetch questions
             const response = await window.orionApi.getQuestions(state.symptom);
             state.questions = response.preguntas;
 
+            if (!state.questions || state.questions.length === 0) {
+                if (elements.questionsContainer) {
+                    elements.questionsContainer.innerHTML = `<div class="text-center p-8 text-gray-400">No specific protocol found for this symptom. Try 'dolor toracico', 'cefalea', etc.</div>`;
+                }
+                return;
+            }
+
             renderQuestions(state.questions);
 
         } catch (error) {
-            alert(`Error: ${error.message}`);
+            console.error(error);
+            if (elements.questionsContainer) {
+                elements.questionsContainer.innerHTML = `<div class="text-center p-8 text-emergency-red">Error: ${error.message}</div>`;
+            }
         }
     }
 
-    async function submitTriage() {
+    window.submitTriage = async function () {
         if (!state.symptom) return;
+
+        const btn = document.getElementById('btn-submit-triage');
+        if (btn) btn.innerHTML = '<span class="animate-spin material-symbols-outlined">sync</span> Processing...';
 
         try {
             const payload = {
@@ -77,22 +213,25 @@ function initTriageModule() {
             const result = await window.orionApi.classifyTriage(payload);
             renderResult(result);
 
+            // Clear questions logic to focus on result
+            if (elements.questionsContainer) elements.questionsContainer.innerHTML = '';
+
         } catch (error) {
             alert(`Classification Error: ${error.message}`);
+            if (btn) btn.innerHTML = 'Analyze & Classify';
         }
-    }
+    };
 
-    // --- Rendering ---
+    // --- Rendering Logic ---
 
     function renderQuestions(questions) {
-        // Replace the "Rapid Assessment" section content
-        // This effectively clears the placeholder data
+        if (!elements.questionsContainer) return;
 
-        const containerHtml = `
-            <div class="space-y-4 animate-fade-in-up" id="dynamic-questions">
+        const html = `
+            <div class="space-y-4 animate-fade-in-up">
                 <div class="flex items-center justify-between px-1">
                     <h3 class="text-sm font-bold text-gray-400 uppercase tracking-widest font-display">Clinical Assessment</h3>
-                    <span class="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded border border-primary/20 font-mono">LIVE QUESTIONNAIRE</span>
+                    <span class="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded border border-primary/20 font-mono">protocol: ${state.symptom.toUpperCase()}</span>
                 </div>
                 
                 ${questions.map((q, idx) => `
@@ -100,59 +239,49 @@ function initTriageModule() {
                     <div class="flex justify-between items-start mb-4">
                         <div class="flex-1">
                             <span class="text-xs text-primary font-mono mb-1 block">Q-${idx + 1}</span>
-                            <p class="text-lg font-medium text-white">${q.texto}</p>
+                            <p class="text-lg font-medium text-white">${q.pregunta}</p>
                         </div>
                     </div>
                     <div class="grid grid-cols-2 gap-3">
                         <button onclick="handleAnswer('${q.id}', 'si')" 
-                            class="answer-btn h-12 rounded-lg bg-white/5 border border-white/10 hover:border-primary hover:bg-primary/10 transition-all font-bold text-gray-300 active:scale-[0.98]" data-question="${q.id}" data-value="si">
+                            class="answer-btn h-12 rounded-lg bg-white/5 border border-white/10 hover:border-primary hover:bg-primary/10 transition-all font-bold text-gray-300 active:scale-[0.98]" 
+                            data-question="${q.id}" data-value="si">
                             YES
                         </button>
                         <button onclick="handleAnswer('${q.id}', 'no')" 
-                            class="answer-btn h-12 rounded-lg bg-white/5 border border-white/10 hover:border-gray-500 hover:bg-white/10 transition-all font-bold text-gray-400 active:scale-[0.98]" data-question="${q.id}" data-value="no">
+                            class="answer-btn h-12 rounded-lg bg-white/5 border border-white/10 hover:border-gray-500 hover:bg-white/10 transition-all font-bold text-gray-400 active:scale-[0.98]" 
+                            data-question="${q.id}" data-value="no">
                             NO
                         </button>
                     </div>
                 </div>
                 `).join('')}
 
-                <button id="btn-submit-triage" class="w-full bg-primary hover:bg-cyan-300 text-black font-bold py-4 rounded-xl shadow-glow transition-all active:scale-95 uppercase tracking-wider mt-6">
+                <button id="btn-submit-triage" onclick="submitTriage()" class="w-full bg-primary hover:bg-cyan-300 text-black font-bold py-4 rounded-xl shadow-glow transition-all active:scale-95 uppercase tracking-wider mt-6 flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined">medical_services</span>
                     Analyze & Classify
                 </button>
             </div>
         `;
 
-        // Find the rapid assessment container to replace
-        // In the template it's the div with "Rapid Assessment" header
-        // For simplicity, we'll inject into main container clearing specific children
-        // But a cleaner way is to target a specific container ID added to HTML
-
-        const targetContainer = document.getElementById('questions-container');
-        if (targetContainer) {
-            targetContainer.innerHTML = containerHtml;
-
-            // Re-attach listener to new button
-            document.getElementById('btn-submit-triage').addEventListener('click', submitTriage);
-        }
+        elements.questionsContainer.innerHTML = html;
     }
 
     function renderResult(result) {
+        if (!elements.resultContainer) return;
+
         const colorMap = {
             'D1': 'emergency-red',
             'D2': 'emergency-orange',
             'D3': 'emergency-yellow',
             'D4': 'emergency-green',
-            'D5': 'emergency-blue',
-            // Fallback for codes
-            'EMERGENCIA': 'emergency-red',
-            'URGENCIA': 'emergency-orange'
+            'D5': 'emergency-blue'
         };
 
         const themeColor = colorMap[result.codigo_triage] || 'emergency-blue';
-        const displayCode = `${result.codigo_triage} - ${result.categoria}`;
 
-        const resultHtml = `
-            <div class="animate-fade-in-up">
+        const html = `
+            <div class="animate-fade-in-up mb-6">
                 <div class="relative glass-alert rounded-xl overflow-hidden shadow-glow-${themeColor.split('-')[1] || 'blue'} group">
                     <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-${themeColor}"></div>
                     <div class="p-5 pl-7 relative z-10">
@@ -176,7 +305,7 @@ function initTriageModule() {
                         </div>
                         
                          <div class="mt-2 mb-4">
-                             <p class="text-[10px] uppercase text-gray-500 font-bold mb-1">Possible Causes (AI Analysis)</p>
+                             <p class="text-[10px] uppercase text-gray-500 font-bold mb-1">POSSIBLE CAUSES (AI ASSISTED)</p>
                              <div class="flex flex-wrap gap-2">
                                 ${result.posibles_causas.map(c => `<span class="text-xs bg-white/5 border border-white/10 px-2 py-1 rounded text-gray-300">${c}</span>`).join('')}
                              </div>
@@ -193,27 +322,24 @@ function initTriageModule() {
             </div>
         `;
 
-        const resultContainer = document.getElementById('result-container');
-        if (resultContainer) {
-            resultContainer.innerHTML = resultHtml;
-            // Scroll to top
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
+        elements.resultContainer.innerHTML = html;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // Expose for inline onclicks
+    // Global answer handler
     window.handleAnswer = function (questionId, value) {
         state.answers[questionId] = value;
 
-        // Visual feedback
+        // Update UI
         const btns = document.querySelectorAll(`button[data-question="${questionId}"]`);
         btns.forEach(btn => {
             if (btn.dataset.value === value) {
-                btn.classList.add('bg-primary/20', 'border-primary', 'text-primary');
-                btn.classList.remove('bg-white/5', 'text-gray-300', 'text-gray-400');
+                // Selected style
+                btn.className = "answer-btn h-12 rounded-lg border transition-all font-bold active:scale-[0.98] " +
+                    "bg-primary/20 border-primary text-primary shadow-glow";
             } else {
-                btn.classList.remove('bg-primary/20', 'border-primary', 'text-primary');
-                btn.classList.add('bg-white/5');
+                // Unselected style
+                btn.className = "answer-btn h-12 rounded-lg bg-white/5 border border-white/10 hover:border-gray-500 hover:bg-white/10 transition-all font-bold text-gray-400 active:scale-[0.98]";
             }
         });
     };

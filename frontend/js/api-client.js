@@ -65,6 +65,23 @@ class ApiClient {
             return null;
         }
     }
+
+    async getPredictionAccuracy() {
+        // Mock data for visualization
+        // In prod this would hit: return this.request('/metrics/prediction_accuracy');
+        return {
+            drift_report: {
+                status: "active",
+                drift_percentage: 15.4,
+                alert: false
+            },
+            graph_data: {
+                labels: ["-5h", "-4h", "-3h", "-2h", "-1h", "Now"],
+                predicted: [12, 14, 15, 14, 16, 18],
+                actual: [11, 13, 16, 14, 19, 17]
+            }
+        };
+    }
 }
 
 const api = new ApiClient();

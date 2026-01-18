@@ -96,26 +96,110 @@
     <style>
         body {
             min-height: max(884px, 100dvh);
+            transition: background-color 0.5s;
+        }
+
+        /* HUD Mode Styles */
+        body.hud-active {
+            background-color: transparent !important;
+        }
+
+        body.hud-active .glass-panel,
+        body.hud-active .bg-surface-glass {
+            background: rgba(0, 0, 0, 0.25) !important;
+            backdrop-filter: blur(4px) !important;
+            border-color: rgba(0, 229, 255, 0.15) !important;
+        }
+
+        body.hud-active header {
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), transparent);
+            border-bottom: none;
+        }
+
+        /* Push content to periphery in HUD mode */
+        body.hud-active main {
+            max-width: 100%;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            position: fixed;
+            bottom: 6rem;
+            left: 0;
+            right: 0;
+            pointer-events: none;
+            /* Let clicks pass through center */
+        }
+
+        body.hud-active main>* {
+            pointer-events: auto;
+            /* Re-enable for panels */
+            width: 350px;
+            margin: 0;
+        }
+
+        /* Hide non-essential peripheral elements or shift them */
+        body.hud-active #result-container:empty,
+        body.hud-active #questions-container:empty {
+            display: none;
+        }
+
+        /* Peripheral Panels */
+        body.hud-active #result-container {
+            order: 1;
+            /* Left side */
+        }
+
+        body.hud-active #questions-container {
+            order: 2;
+            /* Right side */
+        }
+
+        /* Vitals (Top Right) */
+        body.hud-active .vitals-grid {
+            position: fixed;
+            top: 5rem;
+            right: 1rem;
+            width: 200px;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
         }
     </style>
 </head>
 
 <body
     class="bg-background-dark text-gray-100 min-h-screen antialiased selection:bg-primary selection:text-black overflow-x-hidden">
-    <div class="fixed inset-0 z-[-1] pointer-events-none">
+    <div class="fixed inset-0 z-[-2] bg-black">
+        <video id="ar-feed" class="w-full h-full object-cover opacity-0 transition-opacity duration-1000" autoplay
+            playsinline muted></video>
+    </div>
+    <div class="fixed inset-0 z-[-1] pointer-events-none transition-opacity duration-500" id="ambient-bg">
         <div class="absolute inset-0 bg-grid-pattern bg-[length:40px_40px] opacity-[0.03]"></div>
         <div
             class="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-secondary/20 rounded-full blur-[100px]">
         </div>
         <div class="absolute bottom-0 right-0 w-[400px] h-[400px] bg-primary/10 rounded-full blur-[80px]"></div>
     </div>
+
     <div class="scanline"></div>
-    <header class="fixed top-0 w-full z-50 glass-panel border-b-0 border-white/5">
+
+    <!-- Central Reticle (HUD Mode only) -->
+    <div id="hud-reticle"
+        class="fixed inset-0 z-30 pointer-events-none opacity-0 transition-opacity duration-500 flex items-center justify-center">
+        <div class="w-12 h-12 border border-primary/30 rounded-full flex items-center justify-center">
+            <div class="w-1 h-1 bg-primary rounded-full"></div>
+        </div>
+        <div class="absolute w-[200px] h-[1px] bg-gradient-to-r from-transparent via-primary/20 to-transparent"></div>
+        <div class="absolute h-[200px] w-[1px] bg-gradient-to-b from-transparent via-primary/20 to-transparent"></div>
+    </div>
+
+    <header class="fixed top-0 w-full z-50 glass-panel border-b-0 border-white/5 transition-all duration-500"
+        id="main-header">
         <div class="px-4 py-3 flex items-center justify-between">
             <div class="flex items-center space-x-3">
                 <a href="../index.html" class="w-10 h-10 relative flex-shrink-0 cursor-pointer">
                     <div class="absolute inset-0 bg-primary/20 rounded-full blur-md animate-pulse"></div>
-                    <!-- Updated Logo -->
                     <img alt="Orion Omega Logo" class="w-full h-full object-cover rounded-full relative z-10"
                         src="../assets/logo.jpg" />
                 </a>
@@ -132,14 +216,17 @@
                 </div>
             </div>
             <div class="flex items-center gap-3">
+                <button id="btn-ar-toggle"
+                    class="w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center transition-all border border-white/10 active:scale-95 group relative overflow-hidden">
+                    <span
+                        class="material-symbols-outlined text-primary text-sm group-hover:scale-110 transition-transform">view_in_ar</span>
+                    <div class="absolute inset-0 bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                    </div>
+                </button>
                 <div class="text-right hidden sm:block">
                     <div class="text-[10px] text-gray-400 font-mono">CASE ID</div>
                     <div class="text-xs font-mono font-bold text-white">#3920-OMEGA</div>
                 </div>
-                <button
-                    class="w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center transition-colors border border-white/10">
-                    <span class="material-symbols-outlined text-gray-300 text-sm">settings</span>
-                </button>
             </div>
         </div>
         <div
@@ -151,51 +238,44 @@
             <span class="text-primary font-bold">00:04:12 ELAPSED</span>
         </div>
     </header>
-    <main class="pt-32 pb-32 px-4 max-w-md mx-auto w-full relative space-y-5">
-        <div class="animate-fade-in-up" id="result-container">
-            <div class="relative glass-alert rounded-xl overflow-hidden shadow-glow-orange group">
-                <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-emergency-orange"></div>
-                <div class="p-5 pl-7 relative z-10">
-                    <div class="flex items-start justify-between mb-3">
-                        <div class="flex items-center space-x-2">
-                            <span
-                                class="material-symbols-outlined text-emergency-orange text-2xl animate-pulse">warning</span>
-                            <span
-                                class="text-xs font-bold text-emergency-orange uppercase tracking-wider border border-emergency-orange/30 px-2 py-0.5 rounded bg-emergency-orange/10">Priority
-                                Action</span>
-                        </div>
-                        <div class="text-right">
-                            <div class="text-[10px] text-gray-400 font-mono uppercase">Conduct Code</div>
-                            <div class="text-lg font-display font-bold text-white leading-none">D2-ORANGE</div>
-                        </div>
-                    </div>
-                    <h2 class="text-lg font-bold text-white mb-2 font-display uppercase tracking-wide">
-                        Immediate Care Instructions
-                    </h2>
-                    <div class="bg-black/30 rounded-lg p-3 border border-white/5 mb-4">
-                        <p class="text-sm text-gray-200 leading-relaxed font-medium">
-                            Lie patient in <span class="text-primary font-bold">lateral decubitus position</span>.
-                            Monitor airway patency continuously. Prepare for rapid transport.
-                        </p>
-                    </div>
-                    <div class="flex space-x-3">
-                        <button
-                            class="flex-1 bg-emergency-orange hover:bg-orange-600 text-white text-sm font-bold py-3 px-4 rounded-lg shadow-lg shadow-orange-900/20 transition-all active:scale-95 flex items-center justify-center group-hover:shadow-glow-orange">
-                            <span class="material-symbols-outlined text-lg mr-2">check_circle</span>
-                            CONFIRM ACTION
-                        </button>
-                        <button
-                            class="bg-white/5 text-gray-300 p-3 rounded-lg hover:bg-white/10 transition-colors border border-white/10 active:scale-95">
-                            <span class="material-symbols-outlined">mic</span>
-                        </button>
-                    </div>
+
+    <!-- Bio-Auth Modal -->
+    <div id="bio-auth-modal"
+        class="fixed inset-0 z-[100] bg-black/90 backdrop-blur-xl flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-500">
+        <div class="text-center w-full max-w-md p-8 relative">
+            <!-- Scanning Animation -->
+            <div class="relative w-32 h-32 mx-auto mb-8">
+                <div class="absolute inset-0 border-4 border-primary/30 rounded-full animate-ping opacity-20"></div>
+                <div
+                    class="absolute inset-0 border-2 border-primary rounded-full animate-spin-slow border-t-transparent border-l-transparent">
                 </div>
                 <div
-                    class="absolute top-0 w-full h-[1px] bg-gradient-to-r from-transparent via-emergency-orange to-transparent opacity-50">
+                    class="absolute inset-2 border-2 border-secondary rounded-full animate-spin-reverse border-b-transparent border-r-transparent">
                 </div>
+                <span
+                    class="material-symbols-outlined text-4xl text-white absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse">fingerprint</span>
+            </div>
+
+            <h2 class="text-2xl font-display font-bold text-white mb-2 tracking-widest uppercase">BioCore Security</h2>
+            <p id="bio-status-text" class="text-primary font-mono text-sm mb-8">INITIATING BIOMETRIC HANDSHAKE...</p>
+
+            <div id="bio-auth-input"
+                class="space-y-4 opacity-0 transition-opacity duration-300 transform translate-y-4">
+                <input type="text" id="staff-id-input" placeholder="ENTER STAFF ID"
+                    class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-center text-white font-mono placeholder-gray-600 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary uppercase tracking-widest">
+                <button onclick="authenticateBio()"
+                    class="w-full bg-primary hover:bg-primary-hover text-black font-bold py-3 rounded-lg uppercase tracking-wider transition-all transform active:scale-95 shadow-glow">
+                    Verify Identity
+                </button>
             </div>
         </div>
+    </div>
+    <main class="pt-32 pb-32 px-4 max-w-md mx-auto w-full relative space-y-5">
+        <div class="animate-fade-in-up" id="result-container">
+            <!-- Result will be injected here -->
+        </div>
         <div class="space-y-4" id="questions-container">
+            <!-- Questions will be injected here -->
             <div class="flex items-center justify-between px-1">
                 <h3 class="text-sm font-bold text-gray-400 uppercase tracking-widest font-display">Rapid Assessment</h3>
                 <span

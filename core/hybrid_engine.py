@@ -88,13 +88,14 @@ class HybridTriageEngine:
         # Modo de operación
         self.modo = "hybrid" if ai_client else "rules_only"
     
-    def classify(self, sintoma: str, respuestas: Dict[str, Any]) -> HybridTriageResult:
+    def classify(self, sintoma: str, respuestas: Dict[str, Any], images: Optional[List[Any]] = None) -> HybridTriageResult:
         """
-        Clasifica un caso usando el sistema híbrido
+        Clasifica un caso usando el sistema híbrido (Soporte Multimodal)
         
         Args:
             sintoma: Síntoma principal
             respuestas: Respuestas a preguntas obligatorias
+            images: Imágenes clínicas (opcional)
             
         Returns:
             HybridTriageResult con clasificación combinada
@@ -105,7 +106,8 @@ class HybridTriageEngine:
         # 2. Clasificación por AI (si está disponible)
         if self.modo == "hybrid" and self.ai_client:
             try:
-                resultado_ai = self.ai_client.classify(sintoma, respuestas)
+                # Pasar imágenes a Med-Gemma
+                resultado_ai = self.ai_client.classify(sintoma, respuestas, images)
             except Exception as e:
                 print(f"⚠️ Med-Gemma falló, usando solo reglas: {e}")
                 # Fallback a solo reglas
